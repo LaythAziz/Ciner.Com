@@ -6,6 +6,9 @@
     <title>CyberCore | الهندسة المتقدمة لصيانة وتجميع الحواسيب</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --bg-deep: #030407;
@@ -57,7 +60,7 @@
 
         #mainAppContent { display: none; }
 
-        /* لوحة تحكم المالك الشاملة */
+        /* لوحة تحكم المالك السحابية */
         #adminDashboardModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(3, 4, 10, 0.96); backdrop-filter: blur(15px);
@@ -73,7 +76,7 @@
         .admin-table th, .admin-table td { padding: 12px; border: 1px solid var(--border-color); text-align: right; font-size: 0.9rem; vertical-align: middle; }
         .admin-table th { background: rgba(0,240,255,0.1); color: var(--primary-neon); }
 
-        /* نافذة تعديل العضو الخاصة بالآدمن */
+        /* نافذة تعديل العضو للآدمن */
         #adminEditUserModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 11000; display: none; justify-content: center; align-items: center; padding: 20px;
@@ -125,7 +128,7 @@
         .hero-content h1 span { color: var(--primary-neon); text-shadow: 0 0 15px var(--primary-glow); }
         .hero-content p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; }
         
-        /* شريط الإحصائيات العام للناس في الهيرو */
+        /* شريط الإحصائيات العام للزوار */
         .public-stats-bar {
             display: flex; justify-content: center; gap: 30px; margin-top: 30px; flex-wrap: wrap;
         }
@@ -253,8 +256,8 @@
         <div class="admin-container">
             <div class="admin-header">
                 <div>
-                    <h2 style="color: var(--accent-red); font-family: 'Cairo', sans-serif;">لوحة تحكم المالك (Admin Dashboard)</h2>
-                    <p style="color: var(--text-muted);">مرحباً بالمهندس ليث الموسوي - تتبع الزيارات الـ IPs، إدارة الأعضاء، ومتابعة الطلبات</p>
+                    <h2 style="color: var(--accent-red); font-family: 'Cairo', sans-serif;">لوحة تحكم المالك السحابية (Firebase Cloud)</h2>
+                    <p style="color: var(--text-muted);">مرحباً بالمهندس ليث الموسوي - التحكم المركزي بالطلبات والزيارات</p>
                 </div>
                 <button onclick="closeAdminDashboard()" style="background: var(--accent-red); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">إغلاق لوحة التحكم ✕</button>
             </div>
@@ -288,7 +291,7 @@
                 <button class="auth-btn" style="margin-top: 15px; width: 200px;" onclick="addNewUserByAdmin()">إضافة العضو للموقع</button>
             </div>
 
-            <h4 style="color: var(--primary-neon); margin-bottom: 10px;">سجل الطلبات الواردة من الأعضاء والعملاء</h4>
+            <h4 style="color: var(--primary-neon); margin-bottom: 10px;">سجل الطلبات الواردة (سحابي حقيقي)</h4>
             <div style="overflow-x: auto;">
                 <table class="admin-table">
                     <thead>
@@ -309,7 +312,7 @@
                 <table class="admin-table">
                     <thead>
                         <tr>
-                            <th>عنوان الـ IP / المتصفح</th>
+                            <th>بيانات الزائر / المتصفح</th>
                             <th>عدد مرات الدخول</th>
                             <th>وقت أول زيارة</th>
                             <th>وقت آخر زيارة</th>
@@ -320,7 +323,7 @@
                 </table>
             </div>
 
-            <h4 style="color: var(--primary-neon); margin-bottom: 10px;">قائمة الأعضاء المسجلين وإدارتهم بالكامل</h4>
+            <h4 style="color: var(--primary-neon); margin-bottom: 10px;">قائمة الأعضاء المسجلين في النظام</h4>
             <div style="overflow-x: auto;">
                 <table class="admin-table">
                     <thead>
@@ -342,7 +345,7 @@
     <div id="adminEditUserModal">
         <div class="edit-user-card">
             <h3 style="color: var(--primary-neon); margin-bottom: 15px; font-family: 'Cairo', sans-serif;">تعديل بيانات العضو</h3>
-            <input type="hidden" id="editUserIndex">
+            <input type="hidden" id="editUserKey">
             
             <div style="text-align: right; margin-bottom: 12px;">
                 <label style="color: var(--text-muted); font-size: 0.85rem;">الاسم:</label>
@@ -681,13 +684,28 @@
     </div>
 
     <script>
+        // إعدادات Firebase الخاصة بمشروعك
+        const firebaseConfig = {
+            apiKey: "AIzaSyDN41sCEGCNMNDhXspWFNHHNY0_6bjD9-o",
+            authDomain: "cybercore-b4a95.firebaseapp.com",
+            projectId: "cybercore-b4a95",
+            storageBucket: "cybercore-b4a95.firebasestorage.app",
+            messagingSenderId: "213772537661",
+            appId: "1:213772537661:web:d147b75123b74b4f93bf54",
+            measurementId: "G-4F6K86QXDY"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         let generatedOtp = "";
         const ADMIN_EMAIL = "layth.admin@cybercore.com";
         const ADMIN_PASS = "layth2026";
 
         window.addEventListener('DOMContentLoaded', () => {
-            recordGlobalVisit();
-            updatePublicCounters();
+            recordGlobalVisitInCloud();
+            listenToCloudData();
 
             const savedUser = localStorage.getItem('cybercore_logged_user');
             if(savedUser) {
@@ -697,44 +715,138 @@
                 loadUserData();
                 checkAdminPermissions(userObj.email);
             }
-
-            setInterval(() => {
-                updatePublicCounters();
-            }, 2000);
         });
 
-        function recordGlobalVisit() {
-            let totalVisits = parseInt(localStorage.getItem('cybercore_total_visits') || '0');
-            totalVisits += 1;
-            localStorage.setItem('cybercore_total_visits', totalVisits);
+        // تسجيل الزيارات سحابياً في فايربيس
+        function recordGlobalVisitInCloud() {
+            const visitsRef = db.ref('stats/totalVisits');
+            visitsRef.transaction((currentVisits) => {
+                return (currentVisits || 0) + 1;
+            });
 
-            let userAgentInfo = navigator.userAgentData ? (navigator.userAgentData.brands[0] ? navigator.userAgentData.brands[0].brand : "متصفح ويب") : "متصفح زائر";
+            let userAgentInfo = "متصفح زائر";
             if(navigator.userAgent.indexOf("Chrome") != -1) userAgentInfo = "Google Chrome";
             else if(navigator.userAgent.indexOf("Safari") != -1) userAgentInfo = "Safari Browser";
             else if(navigator.userAgent.indexOf("Firefox") != -1) userAgentInfo = "Mozilla Firefox";
             
-            let visitorKey = "Visitor_" + userAgentInfo + "_" + (window.innerWidth > 768 ? "Desktop" : "Mobile");
-            let ipsLog = JSON.parse(localStorage.getItem('cybercore_ips_log') || '{}');
+            let visitorKey = "Visitor_" + userAgentInfo.replace(/\./g, '_') + "_" + (window.innerWidth > 768 ? "Desktop" : "Mobile");
             const nowTime = new Date().toLocaleString('ar-IQ');
 
-            if (ipsLog[visitorKey]) {
-                ipsLog[visitorKey].count += 1;
-                ipsLog[visitorKey].lastSeen = nowTime;
-            } else {
-                ipsLog[visitorKey] = { count: 1, firstSeen: nowTime, lastSeen: nowTime };
-            }
-            localStorage.setItem('cybercore_ips_log', JSON.stringify(ipsLog));
+            const ipRef = db.ref('ipsLog/' + visitorKey);
+            ipRef.once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    let data = snapshot.val();
+                    ipRef.update({
+                        count: (data.count || 0) + 1,
+                        lastSeen: nowTime
+                    });
+                } else {
+                    ipRef.set({
+                        count: 1,
+                        firstSeen: nowTime,
+                        lastSeen: nowTime
+                    });
+                }
+            });
         }
 
-        function updatePublicCounters() {
-            const totalVisits = localStorage.getItem('cybercore_total_visits') || '0';
-            const allOrders = JSON.parse(localStorage.getItem('cybercore_orders_list') || '[]');
+        // الاستماع المباشر للتغييرات السحابية وتحديث الواجهة للجميع لحظياً
+        function listenToCloudData() {
+            db.ref('stats/totalVisits').on('value', (snapshot) => {
+                const visits = snapshot.val() || 0;
+                const vEl = document.getElementById('publicVisitsCount');
+                const avEl = document.getElementById('adminStatVisits');
+                if(vEl) vEl.innerText = visits;
+                if(avEl) avEl.innerText = visits;
+            });
+
+            db.ref('ordersList').on('value', (snapshot) => {
+                const orders = snapshot.val() || [];
+                const ordersCount = Array.isArray(orders) ? orders.length : Object.keys(orders).length;
+                const oEl = document.getElementById('publicOrdersCount');
+                const aoEl = document.getElementById('adminStatOrders');
+                if(oEl) oEl.innerText = ordersCount;
+                if(aoEl) aoEl.innerText = ordersCount;
+
+                renderOrdersTable(orders);
+            });
+
+            db.ref('ipsLog').on('value', (snapshot) => {
+                renderIpsTable(snapshot.val() || {});
+            });
+
+            db.ref('usersList').on('value', (snapshot) => {
+                renderUsersTable(snapshot.val() || {});
+            });
+        }
+
+        function renderOrdersTable(orders) {
+            const tbody = document.getElementById('adminOrdersTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
             
-            const visitsEl = document.getElementById('publicVisitsCount');
-            const ordersEl = document.getElementById('publicOrdersCount');
+            let ordersArray = Array.isArray(orders) ? orders : Object.values(orders);
+            if(ordersArray.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">لا توجد طلبات مسجلة حتى الآن</td></tr>`;
+                return;
+            }
+
+            ordersArray.forEach((ord, idx) => {
+                tbody.innerHTML += `<tr>
+                    <td>#${idx + 1}</td>
+                    <td>${ord.email || 'غير معروف'}</td>
+                    <td style="color:var(--primary-neon);">${ord.service || ''}</td>
+                    <td>${ord.time || ''}</td>
+                </tr>`;
+            });
+        }
+
+        function renderIpsTable(ipsLog) {
+            const tbody = document.getElementById('adminIpsTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
             
-            if(visitsEl) visitsEl.innerText = totalVisits;
-            if(ordersEl) ordersEl.innerText = allOrders.length;
+            for (let key in ipsLog) {
+                tbody.innerHTML += `<tr>
+                    <td style="font-family:monospace; color:var(--accent-green);">${key}</td>
+                    <td><b>${ipsLog[key].count} زيارة</b></td>
+                    <td>${ipsLog[key].firstSeen}</td>
+                    <td>${ipsLog[key].lastSeen}</td>
+                </tr>`;
+            }
+        }
+
+        function renderUsersTable(usersObj) {
+            const tbody = document.getElementById('adminUsersTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let html = `<tr>
+                <td><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></td>
+                <td><b>المهندس ليث</b><br><span style="color:var(--text-muted);font-size:0.8rem;">${ADMIN_EMAIL}</span></td>
+                <td>${ADMIN_PASS}</td>
+                <td style="color:var(--accent-red); font-weight:bold;">مالك المنصة (Admin)</td>
+                <td>حساب رئيسي</td>
+            </tr>`;
+
+            let totalUsersCount = 1;
+            for (let key in usersObj) {
+                let u = usersObj[key];
+                totalUsersCount++;
+                html += `<tr>
+                    <td><img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></td>
+                    <td><b>${u.name || 'بدون اسم'}</b><br><span style="color:var(--text-muted);font-size:0.8rem;">${u.email}</span></td>
+                    <td>${u.pass}</td>
+                    <td style="color:var(--accent-green);">عضو مسجل</td>
+                    <td>
+                        <button onclick="openAdminEditModal('${key}')" style="background:var(--primary-neon); color:var(--bg-deep); border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-weight:bold; margin-left:5px;">تعديل</button>
+                        <button onclick="deleteUserByCloud('${key}')" style="background:#ff0055; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">حذف</button>
+                    </td>
+                </tr>`;
+            }
+            tbody.innerHTML = html;
+            const uCountEl = document.getElementById('adminStatUsers');
+            if(uCountEl) uCountEl.innerText = totalUsersCount;
         }
 
         function startLoginProcess() {
@@ -753,27 +865,37 @@
                 document.getElementById('mainAppContent').style.display = 'block';
                 loadUserData();
                 checkAdminPermissions(email);
-                recordGlobalVisit(); 
+                recordGlobalVisitInCloud();
                 return;
             }
 
-            let allUsers = JSON.parse(localStorage.getItem('cybercore_all_users') || '[]');
-            const foundUser = allUsers.find(u => u.email === email && u.pass === pass);
-            if(foundUser) {
-                localStorage.setItem('cybercore_logged_user', JSON.stringify(foundUser));
-                document.getElementById('authOverlay').style.display = 'none';
-                document.getElementById('mainAppContent').style.display = 'block';
-                loadUserData();
-                checkAdminPermissions(email);
-                recordGlobalVisit(); 
-                return;
-            }
+            db.ref('usersList').once('value', (snapshot) => {
+                let users = snapshot.val() || {};
+                let foundUser = null;
+                for(let k in users) {
+                    if(users[k].email === email && users[k].pass === pass) {
+                        foundUser = users[k];
+                        break;
+                    }
+                }
 
-            generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-            document.getElementById('otpNotice').innerText = "تم إرسال كود التحقق بنجاح!\n(الكود التجريبي هو: " + generatedOtp + ")";
-            document.getElementById('stepEmail').style.display = 'none';
-            document.getElementById('stepOtp').style.display = 'block';
-            document.getElementById('authSubtitle').innerText = "أدخل كود التحقق المكون من 6 أرقام المرسل إلى بريدك";
+                if(foundUser) {
+                    localStorage.setItem('cybercore_logged_user', JSON.stringify(foundUser));
+                    document.getElementById('authOverlay').style.display = 'none';
+                    document.getElementById('mainAppContent').style.display = 'block';
+                    loadUserData();
+                    checkAdminPermissions(email);
+                    recordGlobalVisitInCloud();
+                    return;
+                }
+
+                // مستخدم جديد يتطلب OTP
+                generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                document.getElementById('otpNotice').innerText = "تم إرسال كود التحقق بنجاح!\n(الكود التجريبي هو: " + generatedOtp + ")";
+                document.getElementById('stepEmail').style.display = 'none';
+                document.getElementById('stepOtp').style.display = 'block';
+                document.getElementById('authSubtitle').innerText = "أدخل كود التحقق المكون من 6 أرقام المرسل إلى بريدك";
+            });
         }
 
         function verifyOtpCode() {
@@ -790,18 +912,14 @@
                 };
                 localStorage.setItem('cybercore_logged_user', JSON.stringify(userData));
 
-                let allUsers = JSON.parse(localStorage.getItem('cybercore_all_users') || '[]');
-                if(!allUsers.some(u => u.email === email)) {
-                    allUsers.push(userData);
-                    localStorage.setItem('cybercore_all_users', JSON.stringify(allUsers));
-                }
+                db.ref('usersList').push(userData);
 
                 alert("تم التحقق بنجاح وتفعيل الحساب! أهلاً بك في منصة CyberCore.");
                 document.getElementById('authOverlay').style.display = 'none';
                 document.getElementById('mainAppContent').style.display = 'block';
                 loadUserData();
                 checkAdminPermissions(email);
-                recordGlobalVisit();
+                recordGlobalVisitInCloud();
             } else {
                 alert("كود التحقق غير صحيح، يرجى المحاولة مرة أخرى.");
             }
@@ -816,74 +934,11 @@
         }
 
         function openAdminDashboard() {
-            renderAdminDashboardData();
             document.getElementById('adminDashboardModal').style.display = 'block';
         }
 
         function closeAdminDashboard() {
             document.getElementById('adminDashboardModal').style.display = 'none';
-        }
-
-        function renderAdminDashboardData() {
-            let allUsers = JSON.parse(localStorage.getItem('cybercore_all_users') || '[]');
-            let allOrders = JSON.parse(localStorage.getItem('cybercore_orders_list') || '[]');
-            let ipsLog = JSON.parse(localStorage.getItem('cybercore_ips_log') || '{}');
-            let totalVisits = localStorage.getItem('cybercore_total_visits') || '0';
-
-            document.getElementById('adminStatVisits').innerText = totalVisits;
-            document.getElementById('adminStatUsers').innerText = allUsers.length + 1;
-            document.getElementById('adminStatOrders').innerText = allOrders.length;
-
-            const ordersTbody = document.getElementById('adminOrdersTableBody');
-            ordersTbody.innerHTML = '';
-            if(allOrders.length === 0) {
-                ordersTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">لا توجد طلبات مسجلة حتى الآن</td></tr>`;
-            } else {
-                allOrders.forEach((ord, idx) => {
-                    ordersTbody.innerHTML += `<tr>
-                        <td>#${idx + 1}</td>
-                        <td>${ord.email}</td>
-                        <td style="color:var(--primary-neon);">${ord.service}</td>
-                        <td>${ord.time}</td>
-                    </tr>`;
-                });
-            }
-
-            const ipsTbody = document.getElementById('adminIpsTableBody');
-            ipsTbody.innerHTML = '';
-            for (let key in ipsLog) {
-                ipsTbody.innerHTML += `<tr>
-                    <td style="font-family:monospace; color:var(--accent-green);">${key}</td>
-                    <td><b>${ipsLog[key].count} زيارة</b></td>
-                    <td>${ipsLog[key].firstSeen}</td>
-                    <td>${ipsLog[key].lastSeen}</td>
-                </tr>`;
-            }
-
-            const usersTbody = document.getElementById('adminUsersTableBody');
-            usersTbody.innerHTML = '';
-
-            let html = `<tr>
-                <td><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></td>
-                <td><b>المهندس ليث</b><br><span style="color:var(--text-muted);font-size:0.8rem;">${ADMIN_EMAIL}</span></td>
-                <td>${ADMIN_PASS}</td>
-                <td style="color:var(--accent-red); font-weight:bold;">مالك المنصة (Admin)</td>
-                <td>حساب رئيسي</td>
-            </tr>`;
-
-            allUsers.forEach((u, index) => {
-                html += `<tr>
-                    <td><img src="${u.avatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></td>
-                    <td><b>${u.name || 'بدون اسم'}</b><br><span style="color:var(--text-muted);font-size:0.8rem;">${u.email}</span></td>
-                    <td>${u.pass}</td>
-                    <td style="color:var(--accent-green);">عضو مسجل</td>
-                    <td>
-                        <button onclick="openAdminEditModal(${index})" style="background:var(--primary-neon); color:var(--bg-deep); border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-weight:bold; margin-left:5px;">تعديل</button>
-                        <button onclick="deleteUserByAdmin(${index})" style="background:#ff0055; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">حذف</button>
-                    </td>
-                </tr>`;
-            });
-            usersTbody.innerHTML = html;
         }
 
         function addNewUserByAdmin() {
@@ -897,40 +952,38 @@
                 return;
             }
 
-            let allUsers = JSON.parse(localStorage.getItem('cybercore_all_users') || '[]');
-
             if (avatarInput.files && avatarInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    allUsers.push({ name: name, email: email, pass: pass, avatar: e.target.result });
-                    localStorage.setItem('cybercore_all_users', JSON.stringify(allUsers));
-                    clearAndRefreshAdmin();
+                    db.ref('usersList').push({ name: name, email: email, pass: pass, avatar: e.target.result });
+                    clearAdminInputs();
                 }
                 reader.readAsDataURL(avatarInput.files[0]);
             } else {
-                allUsers.push({ name: name, email: email, pass: pass, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" });
-                localStorage.setItem('cybercore_all_users', JSON.stringify(allUsers));
-                clearAndRefreshAdmin();
+                db.ref('usersList').push({ name: name, email: email, pass: pass, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" });
+                clearAdminInputs();
             }
         }
 
-        function clearAndRefreshAdmin() {
+        function clearAdminInputs() {
             document.getElementById('newAdminName').value = '';
             document.getElementById('newAdminEmail').value = '';
             document.getElementById('newAdminPass').value = '';
             document.getElementById('newAdminAvatar').value = '';
-            renderAdminDashboardData();
-            alert("تمت إضافة العضو الجديد بنجاح!");
+            alert("تمت إضافة العضو بنجاح للسحابة!");
         }
 
-        function openAdminEditModal(index) {
-            let allUsers = JSON.parse(localStorage.getItem('cybercore_all_users') || '[]');
-            const u = allUsers[index];
-            document.getElementById('editUserIndex').value = index;
-            document.getElementById('editUserName').value = u.name || '';
-            document.getElementById('editUserEmail').value = u.email;
-            document.getElementById('editUserPass').value = u.pass;
-            document.getElementById('adminEditUserModal').style.display = 'flex';
+        function openAdminEditModal(userKey) {
+            db.ref('usersList/' + userKey).once('value', (snapshot) => {
+                const u = snapshot.val();
+                if(u) {
+                    document.getElementById('editUserKey').value = userKey;
+                    document.getElementById('editUserName').value = u.name || '';
+                    document.getElementById('editUserEmail').value = u.email;
+                    document.getElementById('editUserPass').value = u.pass;
+                    document.getElementById('adminEditUserModal').style.display = 'flex';
+                }
+            });
         }
 
         function closeAdminEditModal() {
@@ -938,40 +991,33 @@
         }
 
         function saveAdminEditedUser() {
-            const index = document.getElementById('editUserIndex').value;
-            let allUsers = JSON.parse(localStorage.getItem('cybercore_all_users') || '[]');
-            const u = allUsers[index];
-
-            u.name = document.getElementById('editUserName').value.trim() || u.name;
-            u.email = document.getElementById('editUserEmail').value.trim() || u.email;
-            const newPass = document.getElementById('editUserPass').value.trim();
-            if(newPass) u.pass = newPass;
+            const userKey = document.getElementById('editUserKey').value;
+            const updatedData = {
+                name: document.getElementById('editUserName').value.trim(),
+                email: document.getElementById('editUserEmail').value.trim(),
+                pass: document.getElementById('editUserPass').value.trim()
+            };
 
             const fileInput = document.getElementById('editUserAvatarFile');
             if (fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    u.avatar = e.target.result;
-                    localStorage.setItem('cybercore_all_users', JSON.stringify(allUsers));
+                    updatedData.avatar = e.target.result;
+                    db.ref('usersList/' + userKey).update(updatedData);
                     closeAdminEditModal();
-                    renderAdminDashboardData();
-                    alert("تم تحديث بيانات العضو بنجاح!");
+                    alert("تم تحديث العضو بنجاح!");
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                localStorage.setItem('cybercore_all_users', JSON.stringify(allUsers));
+                db.ref('usersList/' + userKey).update(updatedData);
                 closeAdminEditModal();
-                renderAdminDashboardData();
-                alert("تم تحديث بيانات العضو بنجاح!");
+                alert("تم تحديث العضو بنجاح!");
             }
         }
 
-        function deleteUserByAdmin(index) {
-            if(confirm("هل أنت متأكد من حذف هذا المستخدم؟")) {
-                let allUsers = JSON.parse(localStorage.getItem('cybercore_all_users') || '[]');
-                allUsers.splice(index, 1);
-                localStorage.setItem('cybercore_all_users', JSON.stringify(allUsers));
-                renderAdminDashboardData();
+        function deleteUserByCloud(userKey) {
+            if(confirm("هل أنت متأكد من حذف هذا المستخدم نهائياً من السحابة؟")) {
+                db.ref('usersList/' + userKey).remove();
                 alert("تم حذف العضو بنجاح.");
             }
         }
@@ -1054,21 +1100,17 @@
             observer.observe(el);
         });
 
-        function recordNewOrder(serviceName) {
+        function recordNewOrderInCloud(serviceName) {
             const savedUser = JSON.parse(localStorage.getItem('cybercore_logged_user'));
             const userEmail = savedUser ? savedUser.email : "زائر غير مسجل";
             const nowTime = new Date().toLocaleString('ar-IQ');
 
-            let allOrders = JSON.parse(localStorage.getItem('cybercore_orders_list') || '[]');
-            allOrders.push({ email: userEmail, service: serviceName, time: nowTime });
-            localStorage.setItem('cybercore_orders_list', JSON.stringify(allOrders));
-
-            updatePublicCounters();
+            db.ref('ordersList').push({ email: userEmail, service: serviceName, time: nowTime });
             return userEmail;
         }
 
         function orderService(serviceName) {
-            const userEmail = recordNewOrder(serviceName);
+            const userEmail = recordNewOrderInCloud(serviceName);
             const message = "مرحباً مهندس ليث، أود طلب الخدمة التالية من منصة CyberCore:\n\n👤 البريد: " + userEmail + "\n💻 الخدمة: " + serviceName + "\n\n(يرجى كتابة تفاصيل جهازك أو موعد زيارة المحل هنا...)";
             window.open("https://t.me/l713i?text=" + encodeURIComponent(message), '_blank');
         }
@@ -1078,7 +1120,7 @@
             const service = document.getElementById('estService').value;
             const fullServiceTitle = "حاسبة: " + device + " - " + service;
             
-            const userEmail = recordNewOrder(fullServiceTitle);
+            const userEmail = recordNewOrderInCloud(fullServiceTitle);
             const message = "مرحباً مهندس ليث، قمت باستخدام الحاسبة التقديرية في منصة CyberCore:\n\n👤 البريد: " + userEmail + "\n🖥️ الجهاز: " + device + "\n🔧 الخدمة: " + service + "\n\nأرجو إفادتي بالتكلفة النهائية وموعد الحضور للمحل.";
             window.open("https://t.me/l713i?text=" + encodeURIComponent(message), '_blank');
         }

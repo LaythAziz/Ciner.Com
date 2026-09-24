@@ -30,7 +30,7 @@
             overflow-x: hidden;
         }
 
-        /* نافذة تسجيل الدخول الاحترافية والآمنة */
+        /* نافذة تسجيل الدخول */
         #authOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(3, 4, 7, 0.98); backdrop-filter: blur(25px);
@@ -77,12 +77,12 @@
             display: flex; justify-content: space-between; align-items: center;
             transition: var(--transition);
         }
-        .logo { font-size: 1.6rem; font-weight: 900; font-family: 'Cairo', sans-serif; letter-spacing: 1px; white-space: nowrap; }
+        .logo { font-size: 1.5rem; font-weight: 900; font-family: 'Cairo', sans-serif; letter-spacing: 1px; white-space: nowrap; }
         .logo span { color: var(--primary-neon); animation: neonPulse 3s infinite; }
         
-        nav ul { list-style: none; display: flex; gap: 14px; align-items: center; flex-wrap: nowrap; }
+        nav ul { list-style: none; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; }
         nav ul li a {
-            text-decoration: none; color: var(--text-main); font-size: 0.9rem;
+            text-decoration: none; color: var(--text-main); font-size: 0.85rem;
             font-weight: 700; transition: var(--transition); position: relative; white-space: nowrap;
         }
         nav ul li a:hover { color: var(--primary-neon); }
@@ -115,7 +115,7 @@
             background: var(--primary-neon); margin: 15px auto 0; border-radius: 2px;
         }
 
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
         .card {
             background: var(--bg-card); border-radius: 16px; overflow: hidden;
             border: 1px solid var(--border-color); transition: var(--transition);
@@ -127,10 +127,10 @@
         .card:hover .card-img { transform: scale(1.08); }
         
         .card-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .card-content h3 { font-size: 1.55rem; color: var(--text-main); margin-bottom: 10px; font-family: 'Cairo', sans-serif; }
-        .card-content .price-tag { color: var(--accent-green); font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; }
+        .card-content h3 { font-size: 1.45rem; color: var(--text-main); margin-bottom: 10px; font-family: 'Cairo', sans-serif; }
+        .card-content .price-tag { color: var(--accent-green); font-weight: bold; font-size: 1.05rem; margin-bottom: 15px; }
         .card-content ul { list-style: none; margin-bottom: 20px; }
-        .card-content ul li { color: var(--text-muted); margin-bottom: 8px; font-size: 0.95rem; display: flex; align-items: flex-start; }
+        .card-content ul li { color: var(--text-muted); margin-bottom: 8px; font-size: 0.93rem; display: flex; align-items: flex-start; }
         .card-content ul li::before { content: "⚡"; margin-left: 8px; color: var(--primary-neon); }
         
         .btn-order {
@@ -141,19 +141,19 @@
         }
         .btn-order:hover { background: var(--primary-neon); color: var(--bg-deep); }
 
-        /* نافذة البروفايل العائمة (Modal) */
+        /* نافذة البروفايل (رفع صورة حقيقية من الجهاز) */
         #profileModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
             z-index: 10000; display: none; justify-content: center; align-items: center; padding: 20px;
         }
         .profile-modal-card {
             background: var(--bg-card); border: 1px solid var(--primary-neon);
-            padding: 35px; border-radius: 20px; width: 100%; max-width: 500px; text-align: center;
-            box-shadow: 0 0 30px var(--primary-glow);
+            padding: 35px; border-radius: 20px; width: 100%; max-width: 480px; text-align: center;
+            box-shadow: 0 0 35px var(--primary-glow);
         }
         .profile-avatar {
-            width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
+            width: 110px; height: 110px; border-radius: 50%; object-fit: cover;
             border: 3px solid var(--primary-neon); margin: 0 auto 15px; display: block;
         }
 
@@ -220,8 +220,8 @@
             <p id="modalUserEmailDisplay" style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;"></p>
             
             <div style="text-align: right; margin-bottom: 15px;">
-                <label style="color: var(--primary-neon); font-size: 0.9rem;">رابط صورتك الشخصية (Image URL):</label>
-                <input type="text" id="newAvatarUrl" class="auth-input" placeholder="ضع رابط الصورة هنا..." style="margin-top: 5px;">
+                <label style="color: var(--primary-neon); font-size: 0.9rem; display: block; margin-bottom: 5px;">اختر صورتك الشخصية من جهازك:</label>
+                <input type="file" id="imageUploadInput" accept="image/*" style="color: #fff; font-size: 0.9rem; width: 100%; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 8px;">
             </div>
 
             <div style="text-align: right; margin-bottom: 20px;">
@@ -344,6 +344,22 @@
                         <button class="btn-order" onclick="orderService('تجهيز Workstation للمونتاج والريندر')">اطلب الخدمة الآن ✈️</button>
                     </div>
                 </div>
+
+                <div class="card reveal">
+                    <div class="card-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=600&q=80" alt="GPU Maintenance" class="card-img">
+                    </div>
+                    <div class="card-content">
+                        <h3>صيانة وفحص كروت الشاشة (GPU)</h3>
+                        <div class="price-tag">التكلفة: حسب الفحص وحالة الكرت</div>
+                        <ul>
+                            <li>اختبار استقرار الكرت وضغط الأداء تحت الألعاب الثقيلة.</li>
+                            <li>تغيير الوسادات والوسائط الحرارية (Thermal Pads) لمعالج الكرت والـ VRAM.</li>
+                            <li>تنظيف المراوح ومعالجة أصوات الضجيج وارتفاع الحرارة.</li>
+                        </ul>
+                        <button class="btn-order" onclick="orderService('صيانة وفحص كروت الشاشة (GPU)')">اطلب الخدمة الآن ✈️</button>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -367,16 +383,16 @@
 
                 <div class="card reveal">
                     <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=600&q=80" alt="GPU Repair" class="card-img">
+                        <img src="https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80" alt="Advanced Repair" class="card-img">
                     </div>
                     <div class="card-content">
-                        <h3>صيانة كروت الشاشة (GPU)</h3>
+                        <h3>معالجة أعطال الطاقة والبوردات</h3>
                         <div class="price-tag">التكلفة: فحص شامل ومعالجة الأعطال</div>
                         <ul>
-                            <li>إصلاح أعطال الشاشة السوداء وانقطاع الإشارة.</li>
-                            <li>استبدال ذواكر كرت الشاشة (VRAM) التالفة وفحص الثبات.</li>
+                            <li>إصلاح أعطال انقطاع التيار المفاجئ وعدم الاستجابة للتشغيل.</li>
+                            <li>فحص سلامة دوائر الإدخال والإخراج (I/O) وبيانات الـ USB والشبكة.</li>
                         </ul>
-                        <button class="btn-order" onclick="orderService('صيانة كروت الشاشة المتقدمة (GPU Repair)')">اطلب الخدمة الآن ✈️</button>
+                        <button class="btn-order" onclick="orderService('معالجة أعطال الطاقة والماذر بورد')">اطلب الخدمة الآن ✈️</button>
                     </div>
                 </div>
             </div>
@@ -505,7 +521,6 @@
     <script>
         let generatedOtp = "";
 
-        // التحقق من الجلسة المحفوظة عند فتح الصفحة (منع طلب تسجيل الدخول مجدداً)
         window.addEventListener('DOMContentLoaded', () => {
             const savedUser = localStorage.getItem('cybercore_logged_user');
             if(savedUser) {
@@ -556,13 +571,11 @@
             }
         }
 
-        // فتح وإغلاق بروفايل المستخدم
         function openProfileModal() {
             const savedUser = JSON.parse(localStorage.getItem('cybercore_logged_user'));
             if(savedUser) {
                 document.getElementById('modalUserEmailDisplay').innerText = "البريد: " + savedUser.email;
                 document.getElementById('modalAvatarDisplay').src = savedUser.avatar;
-                document.getElementById('newAvatarUrl').value = savedUser.avatar;
                 document.getElementById('newPassword').value = savedUser.pass;
             }
             document.getElementById('profileModal').style.display = 'flex';
@@ -574,16 +587,27 @@
 
         function saveProfileChanges() {
             let savedUser = JSON.parse(localStorage.getItem('cybercore_logged_user'));
-            const newAvatar = document.getElementById('newAvatarUrl').value;
+            const imageInput = document.getElementById('imageUploadInput');
             const newPass = document.getElementById('newPassword').value;
 
-            if(newAvatar) savedUser.avatar = newAvatar;
             if(newPass) savedUser.pass = newPass;
 
-            localStorage.setItem('cybercore_logged_user', JSON.stringify(savedUser));
-            alert("تم حفظ تعديلات البروفايل بنجاح!");
-            closeProfileModal();
-            loadUserData();
+            if (imageInput.files && imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    savedUser.avatar = e.target.result;
+                    localStorage.setItem('cybercore_logged_user', JSON.stringify(savedUser));
+                    alert("تم حفظ تعديلات البروفايل والصورة الشخصية بنجاح!");
+                    closeProfileModal();
+                    loadUserData();
+                }
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                localStorage.setItem('cybercore_logged_user', JSON.stringify(savedUser));
+                alert("تم حفظ تعديلات البروفايل بنجاح!");
+                closeProfileModal();
+                loadUserData();
+            }
         }
 
         function logoutUser() {
@@ -598,7 +622,6 @@
             }
         }
 
-        // تأثير الهيدر عند السكرول
         window.addEventListener('scroll', () => {
             const header = document.getElementById('header');
             if (window.scrollY > 40) {
@@ -610,7 +633,6 @@
             }
         });
 
-        // أنيميشن الظهور السلس
         const observerOptions = { threshold: 0.1 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -624,7 +646,6 @@
             observer.observe(el);
         });
 
-        // طلب الخدمة للتليجرام
         function orderService(serviceName) {
             const savedUser = JSON.parse(localStorage.getItem('cybercore_logged_user'));
             const userEmail = savedUser ? savedUser.email : "غير مسجل";
@@ -632,7 +653,6 @@
             window.open("https://t.me/l713i?text=" + encodeURIComponent(message), '_blank');
         }
 
-        // حاسبة الأسعار
         function calculateAndOrder() {
             const device = document.getElementById('estDevice').value;
             const service = document.getElementById('estService').value;

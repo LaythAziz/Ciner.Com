@@ -236,7 +236,7 @@
     <div id="authOverlay">
         <div class="auth-card">
             <h2>CyberCore Portal</h2>
-            <p id="authSubtitle">أدخل بريدك الإلكتروني للوصول إلى المنصة</p>
+            <p id="authSubtitle">أدخل بريدك الإلكتروني وكلمة المرور للوصول إلى المنصة</p>
             
             <div id="stepEmail">
                 <input type="email" id="userEmail" class="auth-input" placeholder="البريد الإلكتروني..." required>
@@ -257,7 +257,7 @@
             <div class="admin-header">
                 <div>
                     <h2 style="color: var(--accent-red); font-family: 'Cairo', sans-serif;">لوحة تحكم المالك السحابية (Firebase Cloud)</h2>
-                    <p style="color: var(--text-muted);">مرحباً بالمهندس ليث الموسوي - التحكم المركزي بالطلبات والزيارات</p>
+                    <p style="color: var(--text-muted);">مرحباً بالمهندس ليث الموسوي - التحكم المركزي بالطلبات والزيارات والـ IPs</p>
                 </div>
                 <button onclick="closeAdminDashboard()" style="background: var(--accent-red); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">إغلاق لوحة التحكم ✕</button>
             </div>
@@ -313,7 +313,7 @@
                     <thead>
                         <tr>
                             <th>بيانات الزائر / المتصفح</th>
-                            <th>عدد مرات الدخول</th>
+                            <th>عدد مرات الدخول للموقع</th>
                             <th>وقت أول زيارة</th>
                             <th>وقت آخر زيارة</th>
                         </tr>
@@ -715,7 +715,7 @@
             }
         });
 
-        // زيادة عداد الزيارات إجبارياً وبدون أي عوائق
+        // زيادة عداد الزيارات وتسجيل الـ IP ومعلومات الزائر بدقة
         function recordGlobalVisitInCloud() {
             const visitsRef = db.ref('stats/totalVisits');
             visitsRef.transaction((currentVisits) => {
@@ -723,9 +723,11 @@
             });
 
             let browserName = "Visitor";
-            if(navigator.userAgent.indexOf("Chrome") != -1) browserName = "Chrome";
-            else if(navigator.userAgent.indexOf("Safari") != -1) browserName = "Safari";
-            else if(navigator.userAgent.indexOf("Firefox") != -1) browserName = "Firefox";
+            let ua = navigator.userAgent;
+            if(ua.indexOf("Chrome") != -1) browserName = "Chrome";
+            else if(ua.indexOf("Safari") != -1) browserName = "Safari";
+            else if(ua.indexOf("Firefox") != -1) browserName = "Firefox";
+            else if(ua.indexOf("Edge") != -1) browserName = "Edge";
             
             let visitorKey = "Device_" + browserName + "_" + (window.innerWidth > 768 ? "Desktop" : "Mobile");
             const nowTime = new Date().toLocaleString('ar-IQ');
@@ -803,13 +805,18 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             
+            let hasRows = false;
             for (let key in ipsLog) {
+                hasRows = true;
                 tbody.innerHTML += `<tr>
                     <td style="font-family:monospace; color:var(--accent-green);">${key}</td>
                     <td><b>${ipsLog[key].count} زيارة</b></td>
                     <td>${ipsLog[key].firstSeen}</td>
                     <td>${ipsLog[key].lastSeen}</td>
                 </tr>`;
+            }
+            if(!hasRows) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">لا توجد زيارات مسجلة حتى الآن</td></tr>`;
             }
         }
 
@@ -884,37 +891,27 @@
                     return;
                 }
 
-                generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-                document.getElementById('otpNotice').innerText = "تم إرسال كود التحقق بنجاح!\n(الكود التجريبي هو: " + generatedOtp + ")";
-                document.getElementById('stepEmail').style.display = 'none';
-                document.getElementById('stepOtp').style.display = 'block';
-                document.getElementById('authSubtitle').innerText = "أدخل كود التحقق المكون من 6 أرقام المرسل إلى بريدك";
-            });
-        }
-
-        function verifyOtpCode() {
-            const enteredOtp = document.getElementById('otpInput').value.trim();
-            const email = document.getElementById('userEmail').value.trim();
-            const pass = document.getElementById('userPass').value.trim();
-
-            if(enteredOtp === generatedOtp) {
-                const userData = {
+                // إذا المستخدم غير موجود مسبقاً، ننشئ له حساباً جديداً مباشرة ونسجله بالداتا بيس
+                const newUserData = {
                     name: email.split('@')[0],
                     email: email,
                     pass: pass,
                     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
                 };
-                localStorage.setItem('cybercore_logged_user', JSON.stringify(userData));
-                db.ref('usersList').push(userData);
+                localStorage.setItem('cybercore_logged_user', JSON.stringify(newUserData));
+                db.ref('usersList').push(newUserData);
 
-                alert("تم التحقق بنجاح وتفعيل الحساب! أهلاً بك في منصة CyberCore.");
+                alert("أهلاً بك! تم إنشاء حسابك وتسجيل دخولك بنجاح في منصة CyberCore.");
                 document.getElementById('authOverlay').style.display = 'none';
                 document.getElementById('mainAppContent').style.display = 'block';
                 loadUserData();
                 checkAdminPermissions(email);
-            } else {
-                alert("كود التحقق غير صحيح، يرجى المحاولة مرة أخرى.");
-            }
+            });
+        }
+
+        function verifyOtpCode() {
+            // دالة احتياطية متوافقة
+            startLoginProcess();
         }
 
         function checkAdminPermissions(email) {

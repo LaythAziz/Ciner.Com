@@ -683,18 +683,18 @@
     </div>
 
     <script>
-        // إعدادات Firebase السحابية الخاصة بمشروعك
+        // إعدادات Firebase المحدثة من آخر عملية إنشاء
         const firebaseConfig = {
             apiKey: "AIzaSyDN41sCEGCNMNDhXspWFNHHNY0_6bjD9-o",
             authDomain: "cybercore-b4a95.firebaseapp.com",
             projectId: "cybercore-b4a95",
             storageBucket: "cybercore-b4a95.firebasestorage.app",
             messagingSenderId: "213772537661",
-            appId: "1:213772537661:web:d147b75123b74b4f93bf54",
-            measurementId: "G-4F6K86QXDY"
+            appId: "1:213772537661:web:9753b46b1e42fed493bf54",
+            measurementId: "G-LL3E2BZQ7T"
         };
 
-        // تهيئة Firebase بشكل صحيح أولاً لمنع ظهور أي خطأ
+        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -716,22 +716,24 @@
             }
         });
 
-        // تسجيل الزيارات سحابياً
         function recordGlobalVisitInCloud() {
             const visitsRef = db.ref('stats/totalVisits');
-            visitsRef.transaction((currentVisits) => {
-                return (currentVisits || 0) + 1;
+            visitsRef.once('value', (snapshot) => {
+                let currentVisits = snapshot.val() || 0;
+                visitsRef.set(currentVisits + 1);
             });
 
-            let userAgentInfo = "متصفح زائر";
+            let userAgentInfo = navigator.userAgentData ? (navigator.userAgentData.brands[0] ? navigator.userAgentData.brands[0].brand : "متصفح ويب") : "متصفح زائر";
             if(navigator.userAgent.indexOf("Chrome") != -1) userAgentInfo = "Google Chrome";
             else if(navigator.userAgent.indexOf("Safari") != -1) userAgentInfo = "Safari Browser";
             else if(navigator.userAgent.indexOf("Firefox") != -1) userAgentInfo = "Mozilla Firefox";
+            else if(navigator.userAgent.indexOf("Edge") != -1) userAgentInfo = "Microsoft Edge";
             
-            let visitorKey = "Visitor_" + userAgentInfo.replace(/\./g, '_') + "_" + (window.innerWidth > 768 ? "Desktop" : "Mobile");
+            let visitorKey = "Visitor_" + userAgentInfo.replace(/[.#$\[\]\s]/g, '_') + "_" + (window.innerWidth > 768 ? "Desktop" : "Mobile");
+            
             const nowTime = new Date().toLocaleString('ar-IQ');
-
             const ipRef = db.ref('ipsLog/' + visitorKey);
+            
             ipRef.once('value', (snapshot) => {
                 if (snapshot.exists()) {
                     let data = snapshot.val();
@@ -749,7 +751,6 @@
             });
         }
 
-        // الاستماع للتغييرات السحابية وتحديث الواجهة للجميع
         function listenToCloudData() {
             db.ref('stats/totalVisits').on('value', (snapshot) => {
                 const visits = snapshot.val() || 0;
@@ -760,8 +761,8 @@
             });
 
             db.ref('ordersList').on('value', (snapshot) => {
-                const orders = snapshot.val() || [];
-                const ordersCount = Array.isArray(orders) ? orders.length : Object.keys(orders).length;
+                const orders = snapshot.val() || {};
+                const ordersCount = Object.keys(orders).length;
                 const oEl = document.getElementById('publicOrdersCount');
                 const aoEl = document.getElementById('adminStatOrders');
                 if(oEl) oEl.innerText = ordersCount;
@@ -784,7 +785,7 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             
-            let ordersArray = Array.isArray(orders) ? orders : Object.values(orders);
+            let ordersArray = Object.values(orders);
             if(ordersArray.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">لا توجد طلبات مسجلة حتى الآن</td></tr>`;
                 return;
@@ -864,7 +865,6 @@
                 document.getElementById('mainAppContent').style.display = 'block';
                 loadUserData();
                 checkAdminPermissions(email);
-                recordGlobalVisitInCloud();
                 return;
             }
 
@@ -884,7 +884,6 @@
                     document.getElementById('mainAppContent').style.display = 'block';
                     loadUserData();
                     checkAdminPermissions(email);
-                    recordGlobalVisitInCloud();
                     return;
                 }
 
@@ -909,7 +908,6 @@
                     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
                 };
                 localStorage.setItem('cybercore_logged_user', JSON.stringify(userData));
-
                 db.ref('usersList').push(userData);
 
                 alert("تم التحقق بنجاح وتفعيل الحساب! أهلاً بك في منصة CyberCore.");
@@ -917,7 +915,6 @@
                 document.getElementById('mainAppContent').style.display = 'block';
                 loadUserData();
                 checkAdminPermissions(email);
-                recordGlobalVisitInCloud();
             } else {
                 alert("كود التحقق غير صحيح، يرجى المحاولة مرة أخرى.");
             }

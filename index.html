@@ -3,189 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الموسوي | صيانة وتجميع حواسيب الـ PC الاحترافية</title>
+    <title>ليث الموسوي الجزائري | صيانة وتجميع الحواسيب</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
         
         :root {
-            --bg-dark: #0a0b10;
-            --bg-card: rgba(20, 22, 34, 0.85);
-            --neon-cyan: #00f3ff;
-            --neon-magenta: #ff0055;
-            --text-main: #f0f0f5;
-            --text-sub: #9a9ab0;
-            --border-glow: rgba(0, 243, 255, 0.2);
+            --bg-dark: #0b0c10;
+            --bg-card: #1f2833;
+            --neon-accent: #66fcf1;
+            --neon-hover: #45a29e;
+            --text-main: #c5c6c7;
+            --text-white: #ffffff;
+            --glow: 0 0 15px rgba(102, 252, 241, 0.4);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(25px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* أنيميشن الدخول */
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(102, 252, 241, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(102, 252, 241, 0.6); }
+            100% { box-shadow: 0 0 10px rgba(102, 252, 241, 0.2); }
         }
 
         header {
-            background: rgba(10, 11, 16, 0.95);
-            backdrop-filter: blur(12px);
-            padding: 18px 5%;
+            background: rgba(11, 12, 16, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 20px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 1px solid var(--border-glow);
+            border-bottom: 1px solid rgba(102, 252, 241, 0.2);
         }
-        .logo { font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px var(--neon-cyan); }
-        .logo span { color: var(--neon-cyan); }
+        .logo { font-size: 2rem; font-weight: 900; color: var(--text-white); letter-spacing: 1px; }
+        .logo span { color: var(--neon-accent); text-shadow: var(--glow); }
 
         nav button {
-            background: none; border: none; color: var(--text-main); font-size: 1rem;
-            margin: 0 12px; cursor: pointer; transition: 0.3s; font-weight: 700;
+            background: none; border: none; color: var(--text-white); font-size: 1.1rem;
+            margin: 0 15px; cursor: pointer; transition: 0.3s; font-weight: 700;
         }
-        nav button:hover, nav button.active { color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); }
+        nav button:hover, nav button.active { color: var(--neon-accent); text-shadow: var(--glow); transform: scale(1.1); }
 
-        .section { display: none; padding: 60px 5%; min-height: 85vh; animation: fadeInUp 0.5s ease-out forwards; }
+        .section { display: none; padding: 80px 5%; min-height: 85vh; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .section.active { display: block; }
-        .section-title { font-size: 2.5rem; text-align: center; margin-bottom: 40px; color: #fff; text-shadow: 0 0 12px var(--neon-cyan); }
+        .section-title { font-size: 2.8rem; text-align: center; margin-bottom: 50px; color: var(--text-white); text-shadow: var(--glow); }
 
-        .hero { text-align: center; padding-top: 80px; }
-        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; font-weight: 900; }
-        .hero h1 span { color: var(--neon-cyan); }
-        .hero p { font-size: 1.2rem; color: var(--text-sub); max-width: 750px; margin: 0 auto 35px; }
+        /* الرئيسية */
+        .hero { text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .hero h1 { font-size: 4rem; margin-bottom: 20px; font-weight: 900; color: var(--text-white); }
+        .hero h1 span { color: var(--neon-accent); }
+        .hero p { font-size: 1.3rem; max-width: 800px; margin: 0 auto 40px; color: var(--text-main); }
         
-        .btn-glow {
-            background: transparent; color: var(--neon-cyan); border: 2px solid var(--neon-cyan);
-            padding: 12px 32px; font-size: 1.1rem; font-weight: bold; border-radius: 6px; cursor: pointer;
-            transition: 0.3s; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
-        }
-        .btn-glow:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 25px var(--neon-cyan); }
-
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        /* البطاقات والخدمات */
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
         .service-card {
-            background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: 12px;
-            padding: 25px; transition: 0.3s; backdrop-filter: blur(5px);
+            background: var(--bg-card); border-radius: 15px; padding: 30px;
+            transition: all 0.4s ease; border: 1px solid transparent; position: relative;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
-        .service-card:hover { transform: translateY(-6px); border-color: var(--neon-cyan); box-shadow: 0 8px 25px rgba(0, 243, 255, 0.15); }
-        .service-card h3 { font-size: 1.5rem; color: var(--neon-cyan); margin-bottom: 12px; }
-        .service-card ul { list-style: none; color: var(--text-sub); }
-        .service-card ul li { margin-bottom: 8px; font-size: 0.95rem; }
-        .service-card ul li::before { content: "✔ "; color: var(--neon-cyan); }
+        .service-card:hover { 
+            transform: translateY(-10px) scale(1.02); 
+            border-color: var(--neon-accent); 
+            box-shadow: 0 15px 30px rgba(102, 252, 241, 0.15); 
+            z-index: 10;
+        }
+        .service-card h3 { font-size: 1.6rem; color: var(--neon-accent); margin-bottom: 15px; }
+        .service-card ul { list-style: none; margin-bottom: 25px; flex-grow: 1; }
+        .service-card ul li { margin-bottom: 10px; font-size: 1rem; color: #e0e0e0; display: flex; align-items: flex-start; }
+        .service-card ul li::before { content: "▹"; color: var(--neon-accent); margin-left: 8px; font-size: 1.2rem; font-weight: bold; }
+        
+        .btn-request {
+            background: transparent; color: var(--neon-accent); border: 2px solid var(--neon-accent);
+            padding: 10px 20px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer;
+            transition: 0.3s; text-align: center; width: 100%; display: block;
+        }
+        .btn-request:hover { background: var(--neon-accent); color: var(--bg-dark); box-shadow: var(--glow); }
 
+        /* التواصل */
         .contact-box {
-            background: var(--bg-card); border: 1px solid var(--border-glow);
-            padding: 40px; border-radius: 15px; max-width: 550px; margin: 0 auto; text-align: center;
+            background: var(--bg-card); padding: 50px; border-radius: 20px; max-width: 700px; margin: 0 auto; text-align: center;
+            border: 1px solid rgba(102, 252, 241, 0.2); animation: pulseGlow 4s infinite;
         }
+        .social-links { display: flex; justify-content: center; gap: 20px; margin-top: 30px; flex-wrap: wrap; }
         .social-btn {
-            display: inline-block; padding: 12px 28px; margin: 10px; border-radius: 8px;
-            text-decoration: none; color: white; font-weight: bold; transition: 0.3s;
+            padding: 15px 35px; border-radius: 10px; text-decoration: none; color: white;
+            font-weight: bold; font-size: 1.2rem; transition: 0.4s; display: inline-block;
         }
         .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
         .btn-tg { background: #0088cc; }
-        .social-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        .social-btn:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(255,255,255,0.2); filter: brightness(1.1); }
 
-        footer { text-align: center; padding: 20px; background: #050608; color: var(--text-sub); font-size: 0.9rem; margin-top: 40px; border-top: 1px solid #111; }
+        footer { text-align: center; padding: 25px; background: #07080a; color: var(--text-main); font-size: 1rem; margin-top: 60px; border-top: 1px solid #1f2833; }
+        footer span { color: var(--neon-accent); font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">الموسوي <span>PC</span></div>
+        <div class="logo">عالم <span>الـ PC</span></div>
         <nav>
             <button onclick="nav('home')" class="active">الرئيسية</button>
-            <button onclick="nav('hardware')">تجميع وتشديد الهاردوير</button>
-            <button onclick="nav('software')">الصيانة والسوفتوير</button>
-            <button onclick="nav('contact')">تواصل معنا</button>
+            <button onclick="nav('pc')">خدمات PC</button>
+            <button onclick="nav('laptop')">خدمات اللابتوب</button>
+            <button onclick="nav('software')">سوفتوير وتطوير</button>
+            <button onclick="nav('contact')">تواصل معي</button>
         </nav>
     </header>
 
     <section id="home" class="section active hero">
-        <h1>خدمات صيانة وتجميع الـ <span>PC</span> الاحترافية</h1>
-        <p>إدارة وإشراف ليث الموسوي. نقدم خدمات متكاملة لبناء أجهزة الكمبيوتر المخصصة للألعاب والعمل الشاق، تشخيص الأعطال المعقدة، وتنظيف وتحديث الحواسيب لضمان أقصى أداء واستقرار.</p>
-        <button class="btn-glow" onclick="nav('hardware')">استعرض الخدمات</button>
+        <h1>الاحترافية المطلقة في عالم <span>الحواسيب</span></h1>
+        <p>نقدم لك حلولاً هندسية متكاملة لجميع أجهزة الكمبيوتر المكتبية (PC) والمحمولة (Laptops). من التجميع الاحترافي للألعاب والمونتاج، إلى صيانة أدق الأعطال، كسر السرعة، والتبريد المائي. أداء جهازك في أيدٍ أمينة.</p>
+        <button class="btn-request" style="width: auto; padding: 15px 40px; font-size: 1.3rem;" onclick="nav('pc')">تصفح خدماتنا الاحترافية</button>
     </section>
 
-    <section id="hardware" class="section">
-        <h2 class="section-title">تجميع وتركيب الهاردوير (Hardware)</h2>
+    <section id="pc" class="section">
+        <h2 class="section-title">خدمات تجميع وصيانة الـ PC</h2>
         <div class="services-grid">
             <div class="service-card">
-                <h3>تجميع الكيس الكامل (PC Assembly)</h3>
+                <h3>تجميع وشد احترافي (Custom Builds)</h3>
                 <ul>
-                    <li>شد اللوحة الأم (Motherboard) داخل الكيس وتثبيتها بدقة</li>
-                    <li>تركيب المعالج (CPU) وتأمين الحزام الخاص به</li>
-                    <li>تثبيت الرامات (RAM) وتفعيل وضعية Dual-Channel</li>
-                    <li>تركيب كارت الشاشة (GPU) مع تدعيم منع الانحناء</li>
-                    <li>ربط ومزامنة أسلاك التغذية من مزود الطاقة (PSU)</li>
+                    <li>تجميع القطع من الصفر باحترافية وتوافق تام.</li>
+                    <li>شد المذربورد، المعالج، وتثبيت الرامات (Dual/Quad Channel).</li>
+                    <li>تركيب كارت الشاشة (GPU) مع دعامات منع الانحناء (Sag bracket).</li>
+                    <li>إدارة الكيبلات المخفية (Cable Management) لمظهر نظيف.</li>
                 </ul>
+                <button class="btn-request" onclick="orderService('تجميع وشد PC احترافي')">طلب هذه الخدمة</button>
             </div>
-
             <div class="service-card">
-                <h3>أنظمة التبريد والمعجون الحراري</h3>
+                <h3>أنظمة التبريد المتقدمة</h3>
                 <ul>
-                    <li>تركيب المبردات الهوائية والمائية (AIO Liquid Coolers)</li>
-                    <li>استبدال المعجون الحراري للمعالجات (Thermal Paste Replacement)</li>
-                    <li>تغيير المعجون والوسادات الحرارية (Thermal Pads) لكروت الشاشة</li>
-                    <li>ضبط مسار الهواء داخل الكيس (Airflow Optimization)</li>
+                    <li>تركيب المبردات الهوائية والمائية المغلقة (AIO).</li>
+                    <li>تصميم وتركيب التبريد المائي المفتوح (Custom Water Cooling Loop).</li>
+                    <li>تغيير المعجون الحراري (Thermal Paste) للمعالج بأجود الأنواع.</li>
+                    <li>تغيير البادز الحرارية (Thermal Pads) ومعجون كروت الشاشة.</li>
                 </ul>
+                <button class="btn-request" onclick="orderService('تركيب وصيانة أنظمة التبريد')">طلب هذه الخدمة</button>
             </div>
-
             <div class="service-card">
-                <h3>الملحقات وتنظيم الكيبلات</h3>
+                <h3>صيانة وتنظيف الهاردوير</h3>
                 <ul>
-                    <li>ترتيب الكيبلات المخفي الاحترافي (Cable Management)</li>
-                    <li>توصيل وتهيئة الملحقات (كيبورد، ماوس، سماعات)</li>
-                    <li>ربط وإعداد الشاشات المزدوجة والمتعددة</li>
-                    <li>تنظيف الكيس الشامل من الغبار والأتربة بالمضخات الهوائية</li>
+                    <li>التنظيف العميق للـ PC من الغبار باستخدام مضخات مخصصة.</li>
+                    <li>تشخيص أعطال الباورسبلاي (PSU) وانقطاع الطاقة.</li>
+                    <li>فحص اللوحة الأم (Motherboard) وتحديد الدوائر التالفة.</li>
+                    <li>ترقية القطع (Upgrades) لزيادة أداء الأجهزة القديمة.</li>
                 </ul>
+                <button class="btn-request" onclick="orderService('صيانة وتنظيف هاردوير PC')">طلب هذه الخدمة</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="laptop" class="section">
+        <h2 class="section-title">صيانة وتطوير أجهزة اللابتوب</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <h3>ترقية وتسريع اللابتوب</h3>
+                <ul>
+                    <li>استبدال الهارد القديم (HDD) بأقراص (SSD/NVMe M.2) سريعة.</li>
+                    <li>إضافة وترقية ذواكر الرام (RAM) لزيادة سرعة التصفح والعمل.</li>
+                    <li>نقل البيانات بالكامل من الهارد القديم إلى الجديد (Cloning).</li>
+                </ul>
+                <button class="btn-request" onclick="orderService('ترقية وتسريع اللابتوب (RAM/SSD)')">طلب هذه الخدمة</button>
+            </div>
+            <div class="service-card">
+                <h3>الصيانة الداخلية للابتوب</h3>
+                <ul>
+                    <li>فك اللابتوب بالكامل وتنظيف مراوح التبريد ومخارج الهواء.</li>
+                    <li>استبدال المعجون الحراري الجاف لخفض صوت المراوح وحرارة الجهاز.</li>
+                    <li>إصلاح واستبدال المفصلات المكسورة (Hinges) للشاشة.</li>
+                    <li>حل مشكلة اللابتوب الذي لا يعمل أو يفصل فجأة.</li>
+                </ul>
+                <button class="btn-request" onclick="orderService('الصيانة الداخلية والتنظيف للابتوب')">طلب هذه الخدمة</button>
+            </div>
+            <div class="service-card">
+                <h3>استبدال القطع التالفة</h3>
+                <ul>
+                    <li>تغيير شاشات اللابتوب المكسورة أو التالفة.</li>
+                    <li>استبدال بطاريات اللابتوب التالفة أو المنتفخة.</li>
+                    <li>تغيير الكيبورد (لوحة المفاتيح) في حال تعطل الأزرار.</li>
+                    <li>تغيير منافذ الشحن (DC Jack) ومنافذ الـ USB.</li>
+                </ul>
+                <button class="btn-request" onclick="orderService('استبدال قطع اللابتوب التالفة')">طلب هذه الخدمة</button>
             </div>
         </div>
     </section>
 
     <section id="software" class="section">
-        <h2 class="section-title">السوفتوير وفحص الأعطال (Software)</h2>
+        <h2 class="section-title">السوفتوير، كسر السرعة، والأنظمة</h2>
         <div class="services-grid">
             <div class="service-card">
-                <h3>التعريفات والأنظمة</h3>
+                <h3>الأنظمة والتعريفات الشاملة</h3>
                 <ul>
-                    <li>تثبيت أنظمة Windows 10/11 بأحدث الإصدارات</li>
-                    <li>تحديث وتنزيل تعريفات كروت NVIDIA & AMD الرسمية</li>
-                    <li>تنزيل تعريفات اللوحة الأم (الصوت، الشبكة، الشرائح Chipset)</li>
-                    <li>تحديث الـ BIOS لأحدث نسخة لدعم المعالجات الحديثة</li>
+                    <li>فورمات وتثبيت أنظمة Windows (10/11) أصلية مع التفعيل.</li>
+                    <li>تنزيل وتحديث كافة التعريفات (Chipset, Audio, LAN, GPU).</li>
+                    <li>تحديث نظام الـ BIOS لأحدث إصدار بأمان تام لتجنب تلف البورد.</li>
+                    <li>تنظيف الويندوز من الفيروسات والملفات الضارة (Malware Removal).</li>
                 </ul>
+                <button class="btn-request" onclick="orderService('تهيئة السوفتوير والأنظمة')">طلب هذه الخدمة</button>
             </div>
-
             <div class="service-card">
-                <h3>تشخيص وإصلاح الأعطال</h3>
+                <h3>الأداء وكسر السرعة (Overclocking)</h3>
                 <ul>
-                    <li>حل مشكلة الشاشة الزرقاء (BSOD) والإعادة العشوائية</li>
-                    <li>فحص واستقرار درجات الحرارة تحت الضغط (Stress Test)</li>
-                    <li>حل مشاكل عدم التعرف على الأقراص (SSD / HDD / M.2)</li>
-                    <li>فحص سلامة ذاكرة الرام وتحديد القطع التالفة</li>
+                    <li>تفعيل بروفايل الرام (XMP / EXPO) للوصول للسرعة القصوى.</li>
+                    <li>كسر سرعة المعالج (CPU) وكارت الشاشة (GPU) بأمان لزيادة الـ FPS.</li>
+                    <li>تقليل الفولتية (Undervolting) لخفض حرارة اللابتوبات والـ PC بدون فقدان الأداء.</li>
+                    <li>تحسين النظام المخصص للألعاب (Game Optimization & Debloating).</li>
                 </ul>
+                <button class="btn-request" onclick="orderService('تحسين الأداء وكسر السرعة')">طلب هذه الخدمة</button>
+            </div>
+            <div class="service-card">
+                <h3>فحص الأعطال (Troubleshooting)</h3>
+                <ul>
+                    <li>حل مشكلة الشاشة الزرقاء (Blue Screen of Death) المزعجة.</li>
+                    <li>عمل اختبارات الضغط (Stress Tests) لفحص استقرار القطع.</li>
+                    <li>استرجاع الملفات المحذوفة (Data Recovery) من الأقراص.</li>
+                    <li>حل مشاكل الدروب فريم (Drop Frame) والتقطيع في الألعاب.</li>
+                </ul>
+                <button class="btn-request" onclick="orderService('فحص أعطال السوفتوير والشاشة الزرقاء')">طلب هذه الخدمة</button>
             </div>
         </div>
     </section>
 
     <section id="contact" class="section">
-        <h2 class="section-title">تواصل مباشر للحجز والاستفسار</h2>
+        <h2 class="section-title">تواصل معي مباشرة</h2>
         <div class="contact-box">
-            <h3 style="margin-bottom: 15px; color: var(--neon-cyan);">هل تحتاج صيانة أو تجميع حاسوبك؟</h3>
-            <p style="color: var(--text-sub); margin-bottom: 25px;">تواصل معي مباشرة واشرح لي المشكلة أو القطع التي تريد تركيبها، وسأقوم بالرد عليك وتحديد الموعد المناسب.</p>
-            <div>
-                <a href="https://instagram.com/5.u1d" target="_blank" class="social-btn btn-ig">انستغرام</a>
-                <a href="https://t.me/ciner_fx" target="_blank" class="social-btn btn-tg">تليجرام</a>
+            <h3 style="color: var(--neon-accent); font-size: 2rem; margin-bottom: 20px;">حاسبتك تحتاج خبير؟</h3>
+            <p style="color: var(--text-main); font-size: 1.2rem; margin-bottom: 40px;">سواء كنت تبحث عن تجميعة جديدة، أو تواجه مشكلة معقدة في جهازك الحالي، تواصل معي عبر حساباتي الرسمية أدناه وسأكون في خدمتك.</p>
+            
+            <div class="social-links">
+                <a href="https://www.instagram.com/v365_?stkn=MWttaGhwZTBiYjNtbQ==" target="_blank" class="social-btn btn-ig">انستغرام (Instagram)</a>
+                <a href="https://t.me/l713i" target="_blank" class="social-btn btn-tg">تليجرام (Telegram)</a>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>جميع الحقوق محفوظة &copy; 2026 | بإدارة ليث الموسوي</p>
+        <p>جميع الحقوق محفوظة &copy; 2026 | تم التصميم والتطوير بإدارة <span>ليث الموسوي الجزائري</span></p>
     </footer>
 
     <script>
+        // دالة التنقل بين الأقسام
         function nav(sectionId) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => {
+                s.classList.remove('active');
+                // إعادة تشغيل الأنيميشن عند الدخول للقسم
+                s.style.animation = 'none';
+                s.offsetHeight; /* Trigger Reflow */
+                s.style.animation = null;
+            });
             document.getElementById(sectionId).classList.add('active');
             
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -193,6 +265,19 @@
                 event.target.classList.add('active');
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // دالة طلب الخدمة وتحويل العميل للتليجرام مباشرة
+        function orderService(serviceName) {
+            // تجهيز الرسالة
+            const message = "مرحباً ليث، أود طلب الخدمة التالية من موقعك: " + serviceName;
+            // تشفير النص ليدعم الروابط
+            const encodedMessage = encodeURIComponent(message);
+            // يوزر التليجرام الخاص بك l713i
+            const telegramUrl = "https://t.me/l713i?text=" + encodedMessage;
+            
+            // فتح التليجرام في نافذة جديدة
+            window.open(telegramUrl, '_blank');
         }
     </script>
 </body>

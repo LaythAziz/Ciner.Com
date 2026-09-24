@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINER | ليث الموسوي</title>
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --primary: #e50914; /* لون سينمائي */
+            --text-light: #ffffff;
+            --text-muted: #b3b3b3;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-light); }
+        
+        /* شريط التنقل */
+        header { background-color: #000; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); }
+        .logo { font-size: 1.8rem; font-weight: bold; color: var(--primary); letter-spacing: 2px; }
+        nav button { background: none; border: none; color: var(--text-light); font-size: 1.1rem; margin: 0 10px; cursor: pointer; transition: 0.3s; }
+        nav button:hover { color: var(--primary); }
+        
+        /* الأقسام */
+        .section { display: none; padding: 4rem 5%; min-height: 80vh; animation: fadeIn 0.5s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        h2 { font-size: 2.5rem; margin-bottom: 1.5rem; color: var(--text-light); border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 10px; }
+        
+        /* الرئيسية */
+        .hero { text-align: center; margin-top: 5rem; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2rem; }
+        
+        /* الخدمات */
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background-color: var(--bg-card); padding: 20px; border-radius: 10px; text-align: center; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); border-bottom: 3px solid var(--primary); }
+        .card h3 { margin-bottom: 15px; color: var(--primary); }
+        
+        /* لوحة التحكم (الداشبورد) */
+        .dashboard-stats { display: flex; gap: 20px; margin-bottom: 30px; }
+        .stat-box { flex: 1; background-color: var(--bg-card); padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-box h4 { color: var(--text-muted); }
+        .stat-box span { font-size: 2rem; font-weight: bold; color: var(--primary); }
+        
+        /* الملف الشخصي */
+        .profile-info { background-color: var(--bg-card); padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto; }
+        .profile-info p { font-size: 1.2rem; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        /* الفوتر */
+        footer { background-color: #000; text-align: center; padding: 1.5rem; border-top: 1px solid #333; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">CINER</div>
+        <nav>
+            <button onclick="showSection('home')">الرئيسية</button>
+            <button onclick="showSection('services')">الخدمات</button>
+            <button onclick="showSection('dashboard')">لوحة التحكم</button>
+            <button onclick="showSection('profile')">الملف الشخصي</button>
+        </nav>
+    </header>
+
+    <section id="home" class="section active">
+        <div class="hero">
+            <h1>مرحباً بك في عالم الإبداع</h1>
+            <p>نصنع المحتوى المرئي، المونتاج السينمائي، والحلول البرمجية بدقة واحترافية.</p>
+        </div>
+    </section>
+
+    <section id="services" class="section">
+        <h2>خدماتنا</h2>
+        <div class="services-grid">
+            <div class="card">
+                <h3>المونتاج الرقمي</h3>
+                <p>تحرير مقاطع الفيديو وصناعة محتوى قصير لمنصات تيك توك وإنستغرام باحترافية عالية.</p>
+            </div>
+            <div class="card">
+                <h3>تحسين الجودة</h3>
+                <p>استخدام أدوات الذكاء الاصطناعي لرفع جودة الصور والفيديوهات وتعديل الألوان.</p>
+            </div>
+            <div class="card">
+                <h3>هندسة البرمجيات</h3>
+                <p>تصميم واجهات وتطوير حلول برمجية متكاملة تواكب أحدث التقنيات.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboard" class="section">
+        <h2>لوحة التحكم (Dashboard)</h2>
+        <div class="dashboard-stats">
+            <div class="stat-box">
+                <h4>المشاريع المنجزة</h4>
+                <span>124</span>
+            </div>
+            <div class="stat-box">
+                <h4>العملاء النشطين</h4>
+                <span>18</span>
+            </div>
+            <div class="stat-box">
+                <h4>الزيارات اليومية</h4>
+                <span>850</span>
+            </div>
+        </div>
+        <div class="card" style="text-align: right;">
+            <h3>آخر الإشعارات</h3>
+            <ul style="list-style-type: none; margin-top: 10px; color: var(--text-muted);">
+                <li style="margin-bottom: 10px;">- تم استلام طلب مونتاج جديد.</li>
+                <li style="margin-bottom: 10px;">- تم تحديث قالب الموقع بنجاح.</li>
+                <li>- رسالة جديدة بخصوص تصميم فيديو بـ 60 إطار.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="profile" class="section">
+        <h2>الملف الشخصي</h2>
+        <div class="profile-info">
+            <p><strong>الاسم:</strong> ليث الموسوي</p>
+            <p><strong>التخصص:</strong> هندسة تقنيات الحاسوب</p>
+            <p><strong>المهارات:</strong> المونتاج السينمائي (CINER)، تصميم واجهات المستخدم، التعامل مع الذكاء الاصطناعي</p>
+            <p><strong>الاهتمامات:</strong> تطوير الويب، الألعاب الاستراتيجية، إخراج الفيديو.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>جميع الحقوق محفوظة &copy; 2026 | تم التطوير بواسطة ليث الموسوي</p>
+    </footer>
+
+    <script>
+        function showSection(sectionId) {
+            // إخفاء كل الأقسام
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // إظهار القسم المطلوب
+            const activeSection = document.getElementById(sectionId);
+            if (activeSection) {
+                activeSection.classList.add('active');
+            }
+        }
+    </script>
+
+</body>
+</html>

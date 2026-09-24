@@ -304,12 +304,12 @@
                 </table>
             </div>
 
-            <h4 style="color: var(--primary-neon); margin-bottom: 10px;">سجل تتبع عناوين الـ IP (الزيارات الحقيقية)</h4>
+            <h4 style="color: var(--primary-neon); margin-bottom: 10px;">سجل تتبع عناوين الـ IP وزيارات المتصفحات</h4>
             <div style="overflow-x: auto;">
                 <table class="admin-table">
                     <thead>
                         <tr>
-                            <th>عنوان الـ IP</th>
+                            <th>عنوان الـ IP / المتصفح</th>
                             <th>عدد مرات الدخول</th>
                             <th>وقت أول زيارة</th>
                             <th>وقت آخر زيارة</th>
@@ -414,7 +414,7 @@
                 <p>المنصة الهندسية الأولى لصيانة وتجميع الحواسيب الاحترافية، حلول الطاقة وحمايتها، بإشراف المهندس <strong>ليث الموسوي الجزائري</strong>.</p>
                 
                 <div class="public-stats-bar">
-                    <div class="pub-stat-item">👁️ الزيارات للموقع: <span id="publicVisitsCount">0</span></div>
+                    <div class="pub-stat-item">👁️ مجموع الزيارات: <span id="publicVisitsCount">0</span></div>
                     <div class="pub-stat-item">📦 الطلبات المنجزة: <span id="publicOrdersCount">0</span></div>
                 </div>
 
@@ -686,9 +686,11 @@
         const ADMIN_PASS = "layth2026";
 
         window.addEventListener('DOMContentLoaded', () => {
-            trackVisitorIP();
+            // تسجيل الزيارة فورياً وتراكمياً (كل فتحة أو دخول تحسب زيارة جديدة)
+            recordGlobalVisit();
             updatePublicCounters();
 
+            // فحص تسجيل الدخول السابق
             const savedUser = localStorage.getItem('cybercore_logged_user');
             if(savedUser) {
                 const userObj = JSON.parse(savedUser);
@@ -697,40 +699,47 @@
                 loadUserData();
                 checkAdminPermissions(userObj.email);
             }
+
+            // تفعيل المزامنة التلقائية والدورية (تحديث العدادات كل ثانيتين لضمان المزامنة التامة)
+            setInterval(() => {
+                updatePublicCounters();
+            }, 2000);
         });
 
-        function trackVisitorIP() {
-            let visitorIP = localStorage.getItem('cybercore_current_visitor_ip');
-            if (!visitorIP) {
-                visitorIP = "192.168." + Math.floor(Math.random() * 200) + "." + Math.floor(Math.random() * 200);
-                localStorage.setItem('cybercore_current_visitor_ip', visitorIP);
-            }
+        function recordGlobalVisit() {
+            // 1. زيادة العداد الإجمالي العام للزيارات تراكمياً مع كل فتحة موقع أو تحديث (حتى لو لنفس المتصفح أو الحساب)
+            let totalVisits = parseInt(localStorage.getItem('cybercore_total_visits') || '0');
+            totalVisits += 1;
+            localStorage.setItem('cybercore_total_visits', totalVisits);
 
+            // 2. تسجيل وتحديث تفاصيل المتصفح أو الـ IP وزياراته
+            let userAgentInfo = navigator.userAgentData ? (navigator.userAgentData.brands[0] ? navigator.userAgentData.brands[0].brand : "متصفح ويب") : "متصفح زائر";
+            if(navigator.userAgent.indexOf("Chrome") != -1) userAgentInfo = "Google Chrome";
+            else if(navigator.userAgent.indexOf("Safari") != -1) userAgentInfo = "Safari Browser";
+            else if(navigator.userAgent.indexOf("Firefox") != -1) userAgentInfo = "Mozilla Firefox";
+            
+            let visitorKey = "Visitor_" + userAgentInfo + "_" + (window.innerWidth > 768 ? "Desktop" : "Mobile");
             let ipsLog = JSON.parse(localStorage.getItem('cybercore_ips_log') || '{}');
             const nowTime = new Date().toLocaleString('ar-IQ');
 
-            if (ipsLog[visitorIP]) {
-                ipsLog[visitorIP].count += 1;
-                ipsLog[visitorIP].lastSeen = nowTime;
+            if (ipsLog[visitorKey]) {
+                ipsLog[visitorKey].count += 1;
+                ipsLog[visitorKey].lastSeen = nowTime;
             } else {
-                ipsLog[visitorIP] = { count: 1, firstSeen: nowTime, lastSeen: nowTime };
+                ipsLog[visitorKey] = { count: 1, firstSeen: nowTime, lastSeen: nowTime };
             }
             localStorage.setItem('cybercore_ips_log', JSON.stringify(ipsLog));
-
-            let totalVisits = parseInt(localStorage.getItem('cybercore_total_visits') || '0');
-            if (!sessionStorage.getItem('cybercore_session_counted')) {
-                totalVisits += 1;
-                localStorage.setItem('cybercore_total_visits', totalVisits);
-                sessionStorage.setItem('cybercore_session_counted', 'true');
-            }
         }
 
         function updatePublicCounters() {
             const totalVisits = localStorage.getItem('cybercore_total_visits') || '0';
             const allOrders = JSON.parse(localStorage.getItem('cybercore_orders_list') || '[]');
             
-            document.getElementById('publicVisitsCount').innerText = totalVisits;
-            document.getElementById('publicOrdersCount').innerText = allOrders.length;
+            const visitsEl = document.getElementById('publicVisitsCount');
+            const ordersEl = document.getElementById('publicOrdersCount');
+            
+            if(visitsEl) visitsEl.innerText = totalVisits;
+            if(ordersEl) ordersEl.innerText = allOrders.length;
         }
 
         function startLoginProcess() {
@@ -749,6 +758,7 @@
                 document.getElementById('mainAppContent').style.display = 'block';
                 loadUserData();
                 checkAdminPermissions(email);
+                recordGlobalVisit(); // احتساب زيارة إضافية عند تسجيل الدخول
                 return;
             }
 
@@ -760,6 +770,7 @@
                 document.getElementById('mainAppContent').style.display = 'block';
                 loadUserData();
                 checkAdminPermissions(email);
+                recordGlobalVisit(); // احتساب زيارة إضافية عند دخول العضو
                 return;
             }
 
@@ -795,6 +806,7 @@
                 document.getElementById('mainAppContent').style.display = 'block';
                 loadUserData();
                 checkAdminPermissions(email);
+                recordGlobalVisit();
             } else {
                 alert("كود التحقق غير صحيح، يرجى المحاولة مرة أخرى.");
             }
@@ -844,12 +856,12 @@
 
             const ipsTbody = document.getElementById('adminIpsTableBody');
             ipsTbody.innerHTML = '';
-            for (let ip in ipsLog) {
+            for (let key in ipsLog) {
                 ipsTbody.innerHTML += `<tr>
-                    <td style="font-family:monospace; color:var(--accent-green);">${ip}</td>
-                    <td><b>${ipsLog[ip].count} مرة</b></td>
-                    <td>${ipsLog[ip].firstSeen}</td>
-                    <td>${ipsLog[ip].lastSeen}</td>
+                    <td style="font-family:monospace; color:var(--accent-green);">${key}</td>
+                    <td><b>${ipsLog[key].count} زيارة</b></td>
+                    <td>${ipsLog[key].firstSeen}</td>
+                    <td>${ipsLog[key].lastSeen}</td>
                 </tr>`;
             }
 
@@ -1067,8 +1079,8 @@
         }
 
         function calculateAndOrder() {
-            const device = document.getElementById('estDevice').value;
-            const service = document.getElementById('estService').value;
+            const device = document.getElementById('estDevice'].value;
+            const service = document.getElementById('estService'].value;
             const fullServiceTitle = "حاسبة: " + device + " - " + service;
             
             const userEmail = recordNewOrder(fullServiceTitle);

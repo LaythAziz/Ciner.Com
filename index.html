@@ -258,7 +258,7 @@
 
             <div class="admin-stats">
                 <div class="stat-box">
-                    <p style="color: var(--text-muted);">إجمالي زيارات الموقع</p>
+                    <p style="color: var(--text-muted);">إجمالي زيارات الموقع العامة</p>
                     <h3 id="adminStatVisits">0</h3>
                 </div>
                 <div class="stat-box">
@@ -411,7 +411,7 @@
                 <p>المنصة الهندسية الأولى لصيانة وتجميع الحواسيب الاحترافية، حلول الطاقة وحمايتها، بإشراف المهندس <strong>ليث الموسوي الجزائري</strong>.</p>
                 
                 <div class="public-stats-bar">
-                    <div class="pub-stat-item">👁️ مجموع الزيارات: <span id="publicVisitsCount">0</span></div>
+                    <div class="pub-stat-item">👁️ مجموع الزيارات العامة: <span id="publicVisitsCount">0</span></div>
                     <div class="pub-stat-item">📦 الطلبات المنجزة: <span id="publicOrdersCount">0</span></div>
                 </div>
 
@@ -648,8 +648,8 @@
         <section id="about" class="section-padding about-section" style="max-width: 1200px; margin: 50px auto; background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border-color); padding: 50px; display: flex; align-items: center; gap: 40px; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 300px;">
                 <h2 style="font-size: 2.3rem; color: var(--primary-neon); margin-bottom: 20px; font-family: 'Cairo', sans-serif;">الإدارة الهندسية والخبرة التقنية</h2>
-                <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 18px;">تدير هذه المنصة بخبرة تامة <strong>ليث الموسوي الجزائري</strong>. تخصصنا الهندسي والعملي يمنحنا القدرة على التعامل مع أعقد المشاكل التقنية التي تعجز الورش التقليدية عن حلها.</p>
-                <p style="font-size: 1.1rem; color: var(--text-muted);">مرحباً بك لزيارة المحل أو التواصل المباشر عبر تليجرام لفحص جهازك وإصلاحه بأعلى معايير الجودة والاحترافية.</p>
+                <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 18px;">تدير هذه المنصة بخبرة تامة <strong>ليث الموسوي الجزائري</strong>. تخصصنا الهندسي والعملي يمنحنا التعامل مع أعقد المشاكل التقنية بكل احترافية.</p>
+                <p style="font-size: 1.1rem; color: var(--text-muted);">مرحباً بك لزيارة المحل أو التواصل المباشر عبر تليجرام لفحص جهازك.</p>
             </div>
             <div style="flex: 1; min-width: 300px;">
                 <img src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80" alt="Engineer Laith" style="width: 100%; border-radius: 16px; border: 2px solid var(--border-color);">
@@ -658,7 +658,7 @@
 
         <section id="contact" class="section-padding contact-section">
             <h2 class="section-title">جاهز للبدء أو لديك استفسار؟</h2>
-            <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto; color: var(--text-muted);">تواصل معي مباشرة عبر حسابي الرسمي في تليجرام، وسأقوم بالرد عليك سريعاً لمناقشة تفاصيل جهازك وموعد زيارة المحل.</p>
+            <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto; color: var(--text-muted);">تواصل معي مباشرة عبر حسابي الرسمي في تليجرام، وسأقوم بالرد عليك سريعاً لمناقشة تفاصيل جهازك.</p>
             
             <div class="social-buttons">
                 <a href="https://www.instagram.com/v365_?stkn=MWttaGhwZTBiYjNtbQ==" target="_blank" class="social-btn btn-ig">
@@ -688,7 +688,6 @@
             measurementId: "G-LL3E2BZQ7T"
         };
 
-        // تهيئة الفايربيس بنجاح تام
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -735,7 +734,6 @@
             document.getElementById('mainAppContent').style.display = 'block';
             
             checkAdminPermissions(email);
-            recordGlobalVisitInCloud();
         }
 
         function checkAdminPermissions(email) {
@@ -746,7 +744,7 @@
             }
         }
 
-        // تسجيل الزيارات وإرسالها للسحابة بطريقة Transaction الآمنة
+        // جمع وزيادة عدد الزيارات العامة لجميع المتصفحات والزوار وتحديثها للكل
         function recordGlobalVisitInCloud() {
             const visitsRef = db.ref('stats/totalVisits');
             visitsRef.transaction((currentVisits) => {
@@ -1051,19 +1049,29 @@
             observer.observe(el);
         });
 
+        // إصلاح مشكلة تسجيل الطلبات وإرسالها للسحابة فوراً قبل فتح تليجرام
         function recordNewOrderInCloud(serviceName) {
             const savedUser = JSON.parse(localStorage.getItem('cybercore_logged_user'));
-            const userEmail = savedUser ? savedUser.email : "زائر غير مسجل";
+            const userEmail = savedUser ? savedUser.email : "زائر عام مسجل";
             const nowTime = new Date().toLocaleString('ar-IQ');
 
-            db.ref('ordersList').push({ email: userEmail, service: serviceName, time: nowTime });
+            // إرسال الطلب بشكل مؤكد لقاعدة البيانات
+            db.ref('ordersList').push({
+                email: userEmail,
+                service: serviceName,
+                time: nowTime
+            });
             return userEmail;
         }
 
         function orderService(serviceName) {
             const userEmail = recordNewOrderInCloud(serviceName);
             const message = "مرحباً مهندس ليث، أود طلب الخدمة التالية من منصة CyberCore:\n\n👤 البريد: " + userEmail + "\n💻 الخدمة: " + serviceName + "\n\n(يرجى كتابة تفاصيل جهازك أو موعد زيارة المحل هنا...)";
-            window.open("https://t.me/l713i?text=" + encodeURIComponent(message), '_blank');
+            
+            // فتح تليجرام بعد إتمام الحفظ بالسحابة
+            setTimeout(() => {
+                window.open("https://t.me/l713i?text=" + encodeURIComponent(message), '_blank');
+            }, 300);
         }
 
         function calculateAndOrder() {
@@ -1073,7 +1081,11 @@
             
             const userEmail = recordNewOrderInCloud(fullServiceTitle);
             const message = "مرحباً مهندس ليث، قمت باستخدام الحاسبة التقديرية في منصة CyberCore:\n\n👤 البريد: " + userEmail + "\n🖥️ الجهاز: " + device + "\n🔧 الخدمة: " + service + "\n\nأرجو إفادتي بالتكلفة النهائية وموعد الحضور للمحل.";
-            window.open("https://t.me/l713i?text=" + encodeURIComponent(message), '_blank');
+            
+            // فتح تليجرام بعد حفظ الطلب
+            setTimeout(() => {
+                window.open("https://t.me/l713i?text=" + encodeURIComponent(message), '_blank');
+            }, 300);
         }
     </script>
 </body>

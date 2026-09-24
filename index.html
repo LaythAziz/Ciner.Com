@@ -601,7 +601,6 @@
         <section id="ups-section" class="section-padding" style="background: rgba(15, 17, 26, 0.4);">
             <h2 class="section-title">منظومات الطاقة (UPS) <span>وحمايتها للحاسوب</span></h2>
             <p style="text-align: center; color: var(--text-muted); max-width: 800px; margin: 0 auto 30px;">انقطاع الكهرباء والذبذبة المستمرة يدمران القطع الحساسة. إليك الأنواع المتوفرة لحماية جهازك باهظ الثمن:</p>
-            
             <div class="grid-container">
                 <div class="card reveal">
                     <div class="card-img-wrapper">
@@ -684,7 +683,7 @@
     </div>
 
     <script>
-        // إعدادات Firebase الخاصة بمشروعك
+        // إعدادات Firebase السحابية الخاصة بمشروعك
         const firebaseConfig = {
             apiKey: "AIzaSyDN41sCEGCNMNDhXspWFNHHNY0_6bjD9-o",
             authDomain: "cybercore-b4a95.firebaseapp.com",
@@ -695,7 +694,7 @@
             measurementId: "G-4F6K86QXDY"
         };
 
-        // تهيئة Firebase
+        // تهيئة Firebase بشكل صحيح أولاً لمنع ظهور أي خطأ
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -717,7 +716,7 @@
             }
         });
 
-        // تسجيل الزيارات سحابياً في فايربيس
+        // تسجيل الزيارات سحابياً
         function recordGlobalVisitInCloud() {
             const visitsRef = db.ref('stats/totalVisits');
             visitsRef.transaction((currentVisits) => {
@@ -750,7 +749,7 @@
             });
         }
 
-        // الاستماع المباشر للتغييرات السحابية وتحديث الواجهة للجميع لحظياً
+        // الاستماع للتغييرات السحابية وتحديث الواجهة للجميع
         function listenToCloudData() {
             db.ref('stats/totalVisits').on('value', (snapshot) => {
                 const visits = snapshot.val() || 0;
@@ -889,7 +888,6 @@
                     return;
                 }
 
-                // مستخدم جديد يتطلب OTP
                 generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
                 document.getElementById('otpNotice').innerText = "تم إرسال كود التحقق بنجاح!\n(الكود التجريبي هو: " + generatedOtp + ")";
                 document.getElementById('stepEmail').style.display = 'none';

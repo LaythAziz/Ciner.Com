@@ -236,18 +236,12 @@
     <div id="authOverlay">
         <div class="auth-card">
             <h2>CyberCore Portal</h2>
-            <p id="authSubtitle">أدخل بريدك الإلكتروني وكلمة المرور للوصول إلى المنصة</p>
+            <p id="authSubtitle">أدخل بريدك الإلكتروني وكلمة المرور للدخول الفوري</p>
             
             <div id="stepEmail">
                 <input type="email" id="userEmail" class="auth-input" placeholder="البريد الإلكتروني..." required>
                 <input type="password" id="userPass" class="auth-input" placeholder="كلمة المرور..." required>
-                <button class="auth-btn" onclick="startLoginProcess()">تسجيل الدخول</button>
-            </div>
-
-            <div id="stepOtp" style="display: none;">
-                <p style="color: var(--accent-green); margin-bottom: 15px;" id="otpNotice">تم إرسال كود التحقق بنجاح!</p>
-                <input type="text" id="otpInput" class="auth-input" placeholder="أدخل كود التحقق (6 أرقام)..." maxlength="6">
-                <button class="auth-btn" onclick="verifyOtpCode()">تفعيل الدخول نهائياً</button>
+                <button class="auth-btn" onclick="startLoginProcess()">دخول المنصة</button>
             </div>
         </div>
     </div>
@@ -257,7 +251,7 @@
             <div class="admin-header">
                 <div>
                     <h2 style="color: var(--accent-red); font-family: 'Cairo', sans-serif;">لوحة تحكم المالك السحابية (Firebase Cloud)</h2>
-                    <p style="color: var(--text-muted);">مرحباً بالمهندس ليث الموسوي - التحكم المركزي بالطلبات والزيارات والـ IPs</p>
+                    <p style="color: var(--text-muted);">مرحباً بالمهندس ليث الموسوي - التحكم المركزي الكامل</p>
                 </div>
                 <button onclick="closeAdminDashboard()" style="background: var(--accent-red); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">إغلاق لوحة التحكم ✕</button>
             </div>
@@ -693,11 +687,10 @@
             measurementId: "G-LL3E2BZQ7T"
         };
 
-        // تهيئة الفايربيس بنسخة 10 المستقرة
+        // تهيئة الفايربيس
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let generatedOtp = "";
         const ADMIN_EMAIL = "layth.admin@cybercore.com";
         const ADMIN_PASS = "layth2026";
 
@@ -705,17 +698,61 @@
             recordGlobalVisitInCloud();
             listenToCloudData();
 
+            // فحص تسجيل الدخول السابق للمستخدم
             const savedUser = localStorage.getItem('cybercore_logged_user');
             if(savedUser) {
-                const userObj = JSON.parse(savedUser);
-                document.getElementById('authOverlay').style.display = 'none';
-                document.getElementById('mainAppContent').style.display = 'block';
-                loadUserData();
-                checkAdminPermissions(userObj.email);
+                try {
+                    const userObj = JSON.parse(savedUser);
+                    document.getElementById('authOverlay').style.display = 'none';
+                    document.getElementById('mainAppContent').style.display = 'block';
+                    checkAdminPermissions(userObj.email);
+                } catch(e) {
+                    localStorage.removeItem('cybercore_logged_user');
+                }
             }
         });
 
-        // زيادة عداد الزيارات وتسجيل الـ IP ومعلومات الزائر بدقة
+        // نظام تسجيل الدخول المباشر والمضمون لكل المستخدمين
+        function startLoginProcess() {
+            const email = document.getElementById('userEmail').value.trim();
+            const pass = document.getElementById('userPass').value.trim();
+
+            if(!email || !pass) {
+                alert("يرجى إدخال البريد الإلكتروني وكلمة المرور أولاً!");
+                return;
+            }
+
+            // تجهيز بيانات المستخدم الحالي
+            const userData = {
+                name: email.split('@')[0],
+                email: email,
+                pass: pass,
+                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
+            };
+
+            // حفظ المستخدم محلياً لضمان عدم خروجه
+            localStorage.setItem('cybercore_logged_user', JSON.stringify(userData));
+
+            // إرسال المستخدم وتسجيله سحابياً في قاعدة البيانات للجميع
+            db.ref('usersList').push(userData);
+
+            // إخفاء نافذة الدخول وإظهار الموقع بالكامل
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('mainAppContent').style.display = 'block';
+            
+            checkAdminPermissions(email);
+            recordGlobalVisitInCloud();
+        }
+
+        function checkAdminPermissions(email) {
+            if(email === ADMIN_EMAIL) {
+                document.getElementById('adminNavBtn').style.display = 'block';
+            } else {
+                document.getElementById('adminNavBtn').style.display = 'none';
+            }
+        }
+
+        // تسجيل الزيارات وتتبع الـ IPs بجدول لوحة المالك بدقة
         function recordGlobalVisitInCloud() {
             const visitsRef = db.ref('stats/totalVisits');
             visitsRef.transaction((currentVisits) => {
@@ -851,75 +888,6 @@
             tbody.innerHTML = html;
             const uCountEl = document.getElementById('adminStatUsers');
             if(uCountEl) uCountEl.innerText = totalUsersCount;
-        }
-
-        function startLoginProcess() {
-            const email = document.getElementById('userEmail').value.trim();
-            const pass = document.getElementById('userPass').value.trim();
-
-            if(!email || !pass) {
-                alert("يرجى إدخال البريد الإلكتروني وكلمة المرور أولاً!");
-                return;
-            }
-
-            if(email === ADMIN_EMAIL && pass === ADMIN_PASS) {
-                const adminData = { name: "المهندس ليث", email: email, pass: pass, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" };
-                localStorage.setItem('cybercore_logged_user', JSON.stringify(adminData));
-                document.getElementById('authOverlay').style.display = 'none';
-                document.getElementById('mainAppContent').style.display = 'block';
-                loadUserData();
-                checkAdminPermissions(email);
-                return;
-            }
-
-            db.ref('usersList').once('value', (snapshot) => {
-                let users = snapshot.val() || {};
-                let foundUser = null;
-                for(let k in users) {
-                    if(users[k].email === email && users[k].pass === pass) {
-                        foundUser = users[k];
-                        break;
-                    }
-                }
-
-                if(foundUser) {
-                    localStorage.setItem('cybercore_logged_user', JSON.stringify(foundUser));
-                    document.getElementById('authOverlay').style.display = 'none';
-                    document.getElementById('mainAppContent').style.display = 'block';
-                    loadUserData();
-                    checkAdminPermissions(email);
-                    return;
-                }
-
-                // إذا المستخدم غير موجود مسبقاً، ننشئ له حساباً جديداً مباشرة ونسجله بالداتا بيس
-                const newUserData = {
-                    name: email.split('@')[0],
-                    email: email,
-                    pass: pass,
-                    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
-                };
-                localStorage.setItem('cybercore_logged_user', JSON.stringify(newUserData));
-                db.ref('usersList').push(newUserData);
-
-                alert("أهلاً بك! تم إنشاء حسابك وتسجيل دخولك بنجاح في منصة CyberCore.");
-                document.getElementById('authOverlay').style.display = 'none';
-                document.getElementById('mainAppContent').style.display = 'block';
-                loadUserData();
-                checkAdminPermissions(email);
-            });
-        }
-
-        function verifyOtpCode() {
-            // دالة احتياطية متوافقة
-            startLoginProcess();
-        }
-
-        function checkAdminPermissions(email) {
-            if(email === ADMIN_EMAIL) {
-                document.getElementById('adminNavBtn').style.display = 'block';
-            } else {
-                document.getElementById('adminNavBtn').style.display = 'none';
-            }
         }
 
         function openAdminDashboard() {

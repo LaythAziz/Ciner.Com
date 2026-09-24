@@ -565,6 +565,21 @@
             <div class="grid-container">
                 <div class="card reveal">
                     <div class="card-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=600&q=80" alt="Gaming Laptop Repair" class="card-img">
+                    </div>
+                    <div class="card-content">
+                        <h3>صيانة لابتوبات القيمنق (MSI / Lenovo)</h3>
+                        <div class="price-tag">التكلفة: حسب نوع الموديل والفحص</div>
+                        <ul>
+                            <li>معالجة مشاكل ارتفاع الحرارة القصوى لأجهزة الألعاب المحمولة.</li>
+                            <li>صيانة نظام الطاقة الداخلي وإصلاح أعطال الشحن والبطارية.</li>
+                        </ul>
+                        <button class="btn-order" onclick="orderService('صيانة لابتوب قيمنق متقدمة')">اطلب الخدمة الآن ✈️</button>
+                    </div>
+                </div>
+
+                <div class="card reveal">
+                    <div class="card-img-wrapper">
                         <img src="https://images.unsplash.com/photo-1611078489935-0cb964de46d6?auto=format&fit=crop&w=600&q=80" alt="Laptop Repair" class="card-img">
                     </div>
                     <div class="card-content">
@@ -575,21 +590,6 @@
                             <li>إصلاح المفصلات المكسورة (Hinges) وتثبيت هيكل اللابتوب.</li>
                         </ul>
                         <button class="btn-order" onclick="orderService('صيانة لابتوب داخلية وحل مشاكل الحرارة')">اطلب الخدمة الآن ✈️</button>
-                    </div>
-                </div>
-
-                <div class="card reveal">
-                    <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1593642702821-c823b13eb2a5?auto=format&fit=crop&w=600&q=80" alt="Laptop Upgrade" class="card-img">
-                    </div>
-                    <div class="card-content">
-                        <h3>الترقية الشاملة للابتوب</h3>
-                        <div class="price-tag">التكلفة: حسب حجم الهارد أو الرام المطلوب</div>
-                        <ul>
-                            <li>استبدال الهارد القديم بأقراص SSD / NVMe فائقة السرعة مع نقل الويندوز بدون فقدان ملفاتك.</li>
-                            <li>زيادة سعة الرام واستبدال الشاشات والبطاريات التالفة.</li>
-                        </ul>
-                        <button class="btn-order" onclick="orderService('ترقية لابتوب (SSD/RAM) أو استبدال شاشة وبطارية')">اطلب الخدمة الآن ✈️</button>
                     </div>
                 </div>
             </div>
@@ -685,7 +685,6 @@
         const ADMIN_EMAIL = "layth.admin@cybercore.com";
         const ADMIN_PASS = "layth2026";
 
-        // تتبع زيارات الـ IP الحقيقية وتوليد رقم IP محلي للزائر إن لم يكن موجوداً
         window.addEventListener('DOMContentLoaded', () => {
             trackVisitorIP();
             updatePublicCounters();
@@ -703,7 +702,6 @@
         function trackVisitorIP() {
             let visitorIP = localStorage.getItem('cybercore_current_visitor_ip');
             if (!visitorIP) {
-                // توليد IP فريد ومحاكاة عنوان حقيقي للزائر بناءً على متصفحه
                 visitorIP = "192.168." + Math.floor(Math.random() * 200) + "." + Math.floor(Math.random() * 200);
                 localStorage.setItem('cybercore_current_visitor_ip', visitorIP);
             }
@@ -719,9 +717,7 @@
             }
             localStorage.setItem('cybercore_ips_log', JSON.stringify(ipsLog));
 
-            // زيادة إجمالي عدد الزيارات العامة
             let totalVisits = parseInt(localStorage.getItem('cybercore_total_visits') || '0');
-            // نزيد العداد فقط إذا كانت زيارة جديدة بالجلستة
             if (!sessionStorage.getItem('cybercore_session_counted')) {
                 totalVisits += 1;
                 localStorage.setItem('cybercore_total_visits', totalVisits);
@@ -746,7 +742,6 @@
                 return;
             }
 
-            // دخول المالك مباشرة وبدون OTP
             if(email === ADMIN_EMAIL && pass === ADMIN_PASS) {
                 const adminData = { name: "المهندس ليث", email: email, pass: pass, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" };
                 localStorage.setItem('cybercore_logged_user', JSON.stringify(adminData));
@@ -768,10 +763,7 @@
                 return;
             }
 
-            // للمستخدمين الجدد
             generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-            console.log("رمز التحقق:", generatedOtp);
-
             document.getElementById('otpNotice').innerText = "تم إرسال كود التحقق بنجاح!\n(الكود التجريبي هو: " + generatedOtp + ")";
             document.getElementById('stepEmail').style.display = 'none';
             document.getElementById('stepOtp').style.display = 'block';
@@ -831,12 +823,10 @@
             let ipsLog = JSON.parse(localStorage.getItem('cybercore_ips_log') || '{}');
             let totalVisits = localStorage.getItem('cybercore_total_visits') || '0';
 
-            // الإحصائيات
             document.getElementById('adminStatVisits').innerText = totalVisits;
             document.getElementById('adminStatUsers').innerText = allUsers.length + 1;
             document.getElementById('adminStatOrders').innerText = allOrders.length;
 
-            // جدول الطلبات الواردة
             const ordersTbody = document.getElementById('adminOrdersTableBody');
             ordersTbody.innerHTML = '';
             if(allOrders.length === 0) {
@@ -852,7 +842,6 @@
                 });
             }
 
-            // جدول تتبع الـ IPs
             const ipsTbody = document.getElementById('adminIpsTableBody');
             ipsTbody.innerHTML = '';
             for (let ip in ipsLog) {
@@ -864,7 +853,6 @@
                 </tr>`;
             }
 
-            // جدول الأعضاء
             const usersTbody = document.getElementById('adminUsersTableBody');
             usersTbody.innerHTML = '';
 
@@ -909,17 +897,17 @@
                 reader.onload = function(e) {
                     allUsers.push({ name: name, email: email, pass: pass, avatar: e.target.result });
                     localStorage.setItem('cybercore_all_users', JSON.stringify(allUsers));
-                    clearAndRefreshAdmin(allUsers);
+                    clearAndRefreshAdmin();
                 }
                 reader.readAsDataURL(avatarInput.files[0]);
             } else {
                 allUsers.push({ name: name, email: email, pass: pass, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" });
                 localStorage.setItem('cybercore_all_users', JSON.stringify(allUsers));
-                clearAndRefreshAdmin(allUsers);
+                clearAndRefreshAdmin();
             }
         }
 
-        function clearAndRefreshAdmin(allUsers) {
+        function clearAndRefreshAdmin() {
             document.getElementById('newAdminName').value = '';
             document.getElementById('newAdminEmail').value = '';
             document.getElementById('newAdminPass').value = '';
@@ -1059,7 +1047,6 @@
             observer.observe(el);
         });
 
-        // تسجيل الطلبات وحفظها في الأرشيف وإرسالها للتليجرام
         function recordNewOrder(serviceName) {
             const savedUser = JSON.parse(localStorage.getItem('cybercore_logged_user'));
             const userEmail = savedUser ? savedUser.email : "زائر غير مسجل";

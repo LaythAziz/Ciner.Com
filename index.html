@@ -5,387 +5,238 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CyberCore | الهندسة المتقدمة لصيانة وتجميع الحواسيب</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
-    
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <style>
         :root {
-            --bg-deep: #030407;
-            --bg-card: #0b0d14;
-            --bg-card-hover: #121622;
-            --primary-neon: #00f0ff;
-            --primary-glow: rgba(0, 240, 255, 0.35);
-            --accent-green: #00ff88;
-            --accent-red: #ff0055;
+            --bg-deep: #050510;
+            --bg-card: rgba(15, 17, 30, 0.7);
+            --primary-neon: #ff00ff; /* Neon Pink */
+            --primary-glow: rgba(255, 0, 255, 0.4);
+            --secondary-neon: #00ffff; /* Neon Cyan */
+            --secondary-glow: rgba(0, 255, 255, 0.4);
+            --accent-gold: #ffd700;
             --text-main: #ffffff;
-            --text-muted: #8b95a5;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --text-muted: #a0aabf;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         html { scroll-behavior: smooth; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Tajawal', sans-serif; 
-            background-color: var(--bg-deep); 
+            background: radial-gradient(circle at center, #1a1a2e 0%, var(--bg-deep) 100%);
             color: var(--text-main); 
             line-height: 1.8; 
             overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Pure CSS Animated Bubbles Background */
+        .bubbles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: rgba(255, 0, 255, 0.1);
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: rise linear infinite;
+        }
+        .bubble:nth-child(even) { background: rgba(0, 255, 255, 0.1); }
+        
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
         }
 
         /* نافذة تسجيل الدخول */
         #authOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(3, 4, 7, 0.98); backdrop-filter: blur(25px);
+            background: rgba(5, 5, 16, 0.85); backdrop-filter: blur(15px);
             z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px;
         }
         .auth-card {
-            background: var(--bg-card); border: 1px solid var(--primary-neon);
-            padding: 40px; border-radius: 20px; width: 100%; max-width: 450px;
-            box-shadow: 0 0 40px var(--primary-glow); text-align: center;
+            background: linear-gradient(135deg, rgba(20,20,40,0.9), rgba(10,10,20,0.9));
+            border: 2px solid var(--primary-neon);
+            padding: 50px; border-radius: 30px; width: 100%; max-width: 500px;
+            box-shadow: 0 0 50px var(--primary-glow), inset 0 0 20px var(--secondary-glow);
+            text-align: center;
+            transform: scale(0.9);
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
-        .auth-card h2 { color: var(--primary-neon); margin-bottom: 10px; font-family: 'Cairo', sans-serif; font-size: 2rem; }
-        .auth-card p { color: var(--text-muted); margin-bottom: 25px; font-size: 0.95rem; }
+        @keyframes popIn { to { transform: scale(1); } }
+        .auth-card h2 { color: var(--primary-neon); margin-bottom: 10px; font-family: 'Cairo', sans-serif; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--primary-neon);}
+        .auth-card p { color: var(--text-muted); margin-bottom: 30px; font-size: 1.1rem; }
         .auth-input {
-            width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 8px;
-            border: 1px solid var(--border-color); background: rgba(0,0,0,0.6); color: #fff; font-size: 1rem; outline: none;
+            width: 100%; padding: 16px; margin-bottom: 20px; border-radius: 12px;
+            border: 1px solid var(--border-color); background: rgba(0,0,0,0.5); color: #fff; font-size: 1.1rem; outline: none;
+            transition: var(--transition);
         }
-        .auth-input:focus { border-color: var(--primary-neon); box-shadow: 0 0 10px var(--primary-glow); }
+        .auth-input:focus { border-color: var(--secondary-neon); box-shadow: 0 0 15px var(--secondary-glow); transform: translateY(-2px); }
         .auth-btn {
-            width: 100%; padding: 14px; background: var(--primary-neon); color: var(--bg-deep);
-            font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; transition: var(--transition);
+            width: 100%; padding: 16px; background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon)); color: #000;
+            font-weight: 900; border: none; border-radius: 12px; cursor: pointer; font-size: 1.2rem; transition: var(--transition);
+            text-transform: uppercase; letter-spacing: 1px;
         }
-        .auth-btn:hover { background: #fff; box-shadow: 0 0 20px var(--primary-neon); }
+        .auth-btn:hover { box-shadow: 0 0 30px var(--primary-neon); transform: scale(1.05); color: #fff; }
 
         #mainAppContent { display: none; }
 
-        /* لوحة تحكم المالك السحابية */
-        #adminDashboardModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(3, 4, 10, 0.96); backdrop-filter: blur(15px);
-            z-index: 10000; display: none; padding: 40px 3%; overflow-y: auto;
-        }
-        .admin-container { max-width: 1250px; margin: 0 auto; background: var(--bg-card); border: 2px solid var(--accent-red); border-radius: 20px; padding: 30px; box-shadow: 0 0 50px rgba(255,0,85,0.2); }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
-        .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .stat-box { background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; text-align: center; }
-        .stat-box h3 { color: var(--primary-neon); font-size: 1.8rem; margin-top: 5px; }
-        
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 35px; }
-        .admin-table th, .admin-table td { padding: 12px; border: 1px solid var(--border-color); text-align: right; font-size: 0.9rem; vertical-align: middle; }
-        .admin-table th { background: rgba(0,240,255,0.1); color: var(--primary-neon); }
-
-        /* نافذة تعديل العضو للآدمن */
-        #adminEditUserModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 11000; display: none; justify-content: center; align-items: center; padding: 20px;
-        }
-        .edit-user-card {
-            background: var(--bg-card); border: 1px solid var(--primary-neon); padding: 30px; border-radius: 16px; width: 100%; max-width: 450px;
-        }
-
-        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar { width: 12px; }
         ::-webkit-scrollbar-track { background: var(--bg-deep); }
-        ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, var(--primary-neon), var(--secondary-neon)); border-radius: 6px; }
 
-        .reveal { opacity: 0; transform: translateY(35px); transition: opacity 0.8s ease, transform 0.8s ease; }
-        .reveal.active { opacity: 1; transform: translateY(0); }
+        .reveal { opacity: 0; transform: translateY(50px) scale(0.95); transition: all 1s cubic-bezier(0.5, 0, 0, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0) scale(1); }
 
-        @keyframes neonPulse {
-            0% { text-shadow: 0 0 10px var(--primary-glow); }
-            50% { text-shadow: 0 0 25px var(--primary-neon), 0 0 40px var(--primary-glow); }
-            100% { text-shadow: 0 0 10px var(--primary-glow); }
+        @keyframes textShine {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
         header {
             position: fixed; top: 0; left: 0; width: 100%;
-            background: rgba(3, 4, 7, 0.95); backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border-color);
-            z-index: 1000; padding: 12px 3%;
+            background: rgba(5, 5, 16, 0.7); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            z-index: 1000; padding: 15px 5%;
             display: flex; justify-content: space-between; align-items: center;
             transition: var(--transition);
         }
-        .logo { font-size: 1.5rem; font-weight: 900; font-family: 'Cairo', sans-serif; letter-spacing: 1px; white-space: nowrap; }
-        .logo span { color: var(--primary-neon); animation: neonPulse 3s infinite; }
-        
-        nav ul { list-style: none; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; }
-        nav ul li a {
-            text-decoration: none; color: var(--text-main); font-size: 0.85rem;
-            font-weight: 700; transition: var(--transition); position: relative; white-space: nowrap;
+        .logo { font-size: 2rem; font-weight: 900; font-family: 'Cairo', sans-serif; letter-spacing: 2px; }
+        .logo span { 
+            background: linear-gradient(to right, var(--primary-neon), var(--secondary-neon), var(--primary-neon));
+            -webkit-background-clip: text; background-clip: text;
+            color: transparent; background-size: 200% auto; animation: textShine 3s linear infinite;
         }
-        nav ul li a:hover { color: var(--primary-neon); }
+        
+        nav ul { list-style: none; display: flex; gap: 20px; align-items: center; }
+        nav ul li a {
+            text-decoration: none; color: var(--text-main); font-size: 1rem;
+            font-weight: 700; transition: var(--transition); padding: 8px 12px; border-radius: 8px;
+        }
+        nav ul li a:hover { color: #000; background: var(--secondary-neon); box-shadow: 0 0 15px var(--secondary-glow); }
 
         .hero {
             position: relative; min-height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            text-align: center; padding: 0 20px; overflow: hidden;
-            background: linear-gradient(to bottom, rgba(3,4,7,0.6), var(--bg-deep)),
-                        url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            text-align: center; padding: 0 20px;
         }
-        .hero-content { position: relative; z-index: 10; max-width: 950px; margin-top: 60px; }
-        .hero-content h1 { font-size: 3.5rem; font-weight: 900; margin-bottom: 20px; font-family: 'Cairo', sans-serif; }
-        .hero-content h1 span { color: var(--primary-neon); text-shadow: 0 0 15px var(--primary-glow); }
-        .hero-content p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 30px; }
+        .hero-content { position: relative; z-index: 10; max-width: 1000px; padding: 40px; background: rgba(0,0,0,0.4); border-radius: 30px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .hero-content h1 { font-size: 4.5rem; font-weight: 900; margin-bottom: 25px; font-family: 'Cairo', sans-serif; line-height: 1.2; }
+        .hero-content h1 span { 
+            color: transparent; 
+            -webkit-text-stroke: 2px var(--primary-neon);
+            text-shadow: 0 0 20px var(--primary-glow);
+        }
+        .hero-content p { font-size: 1.4rem; color: var(--text-muted); margin-bottom: 40px; font-weight: 400; }
         
-        /* شريط الإحصائيات العام للزوار */
-        .public-stats-bar {
-            display: flex; justify-content: center; gap: 30px; margin-top: 30px; flex-wrap: wrap;
-        }
+        .public-stats-bar { display: flex; justify-content: center; gap: 20px; margin-top: 40px; flex-wrap: wrap; }
         .pub-stat-item {
-            background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2);
-            padding: 12px 25px; border-radius: 50px; font-size: 0.95rem; font-weight: bold;
+            background: linear-gradient(145deg, rgba(255,0,255,0.1), rgba(0,255,255,0.1)); border: 1px solid rgba(255,255,255,0.2);
+            padding: 15px 30px; border-radius: 15px; font-size: 1.1rem; font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px); transition: var(--transition);
         }
-        .pub-stat-item span { color: var(--primary-neon); margin-right: 5px; }
+        .pub-stat-item:hover { transform: translateY(-5px); border-color: var(--primary-neon); }
+        .pub-stat-item span { color: var(--secondary-neon); font-size: 1.3rem; margin-right: 8px; }
 
         .btn-main {
-            display: inline-block; padding: 14px 35px; font-size: 1.15rem; font-weight: bold;
-            color: var(--bg-deep); background: var(--primary-neon);
-            border-radius: 8px; text-decoration: none; transition: var(--transition);
-            box-shadow: 0 0 25px var(--primary-glow); border: 2px solid var(--primary-neon);
+            display: inline-block; padding: 18px 45px; font-size: 1.3rem; font-weight: 900;
+            color: #000; background: linear-gradient(45deg, var(--secondary-neon), var(--primary-neon));
+            border-radius: 50px; text-decoration: none; transition: var(--transition);
+            box-shadow: 0 10px 30px rgba(0,255,255,0.3); position: relative; overflow: hidden;
         }
-        .btn-main:hover { background: transparent; color: var(--primary-neon); transform: translateY(-5px); }
+        .btn-main::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        .btn-main:hover::before { left: 100%; }
+        .btn-main:hover { transform: scale(1.05) translateY(-5px); box-shadow: 0 15px 40px rgba(255,0,255,0.4); color: #fff;}
 
-        .section-padding { padding: 90px 5%; }
-        .section-title { text-align: center; font-size: 2.8rem; margin-bottom: 40px; font-weight: 900; font-family: 'Cairo', sans-serif; }
-        .section-title span { color: var(--primary-neon); }
-        .section-title::after {
-            content: ''; display: block; width: 80px; height: 4px;
-            background: var(--primary-neon); margin: 15px auto 0; border-radius: 2px;
-        }
-
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .card {
-            background: var(--bg-card); border-radius: 16px; overflow: hidden;
-            border: 1px solid var(--border-color); transition: var(--transition);
-            display: flex; flex-direction: column;
-        }
-        .card:hover { transform: translateY(-10px); border-color: var(--primary-neon); box-shadow: 0 20px 40px rgba(0, 240, 255, 0.15); }
-        .card-img-wrapper { position: relative; overflow: hidden; height: 210px; }
-        .card-img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
-        .card:hover .card-img { transform: scale(1.08); }
+        .section-padding { padding: 120px 5%; position: relative; z-index: 10; }
+        .section-title { text-align: center; font-size: 3.5rem; margin-bottom: 60px; font-weight: 900; font-family: 'Cairo', sans-serif; text-transform: uppercase; }
+        .section-title span { color: var(--secondary-neon); text-shadow: 0 0 15px var(--secondary-glow); }
         
-        .card-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .card-content h3 { font-size: 1.45rem; color: var(--text-main); margin-bottom: 10px; font-family: 'Cairo', sans-serif; }
-        .card-content .price-tag { color: var(--accent-green); font-weight: bold; font-size: 1.05rem; margin-bottom: 15px; }
-        .card-content ul { list-style: none; margin-bottom: 20px; }
-        .card-content ul li { color: var(--text-muted); margin-bottom: 8px; font-size: 0.93rem; display: flex; align-items: flex-start; }
-        .card-content ul li::before { content: "⚡"; margin-left: 8px; color: var(--primary-neon); }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
+        .card {
+            background: var(--bg-card); border-radius: 24px; overflow: hidden;
+            border: 1px solid var(--border-color); transition: var(--transition);
+            display: flex; flex-direction: column; backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .card:hover { 
+            transform: translateY(-15px) scale(1.02); 
+            border-color: var(--secondary-neon); 
+            box-shadow: 0 25px 50px rgba(0, 255, 255, 0.2); 
+        }
+        .card-img-wrapper { 
+            position: relative; overflow: hidden; height: 250px; 
+            background: linear-gradient(45deg, #1a1a2e, #0f111e);
+            display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.9rem;
+        }
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; filter: brightness(0.8) contrast(1.2); position: absolute; top:0; left:0; z-index: 1;}
+        .card:hover .card-img { transform: scale(1.15); filter: brightness(1) contrast(1.1); }
+        
+        .card-content { padding: 35px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; position: relative; z-index: 2;}
+        .card-content h3 { font-size: 1.8rem; color: var(--primary-neon); margin-bottom: 15px; font-family: 'Cairo', sans-serif; font-weight: 800; }
+        .card-content .price-tag { color: var(--accent-gold); font-weight: 900; font-size: 1.2rem; margin-bottom: 20px; background: rgba(255,215,0,0.1); padding: 5px 15px; border-radius: 20px; display: inline-block; }
+        .card-content ul { list-style: none; margin-bottom: 30px; }
+        .card-content ul li { color: #d0d5e0; margin-bottom: 12px; font-size: 1.05rem; display: flex; align-items: flex-start; }
+        .card-content ul li::before { content: "✨"; margin-left: 10px; font-size: 1.2rem; }
         
         .btn-order {
-            display: block; width: 100%; text-align: center; padding: 12px;
-            background: rgba(0, 240, 255, 0.08); border: 1px solid var(--primary-neon);
-            color: var(--primary-neon); font-weight: bold; font-size: 1.05rem;
-            border-radius: 8px; cursor: pointer; transition: var(--transition);
+            display: block; width: 100%; text-align: center; padding: 16px;
+            background: transparent; border: 2px solid var(--secondary-neon);
+            color: var(--secondary-neon); font-weight: 900; font-size: 1.2rem;
+            border-radius: 12px; cursor: pointer; transition: var(--transition); text-transform: uppercase;
         }
-        .btn-order:hover { background: var(--primary-neon); color: var(--bg-deep); }
+        .btn-order:hover { background: var(--secondary-neon); color: #000; box-shadow: 0 0 20px var(--secondary-glow); }
 
-        /* نافذة البروفايل */
-        #profileModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
-            z-index: 10000; display: none; justify-content: center; align-items: center; padding: 20px;
+        .floating-actions { position: fixed; bottom: 30px; left: 30px; display: flex; flex-direction: column; gap: 15px; z-index: 999; }
+        .fab {
+            width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center;
+            align-items: center; font-size: 32px; color: white; text-decoration: none;
+            transition: var(--transition); box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            animation: bounce 2s infinite alternate;
         }
-        .profile-modal-card {
-            background: var(--bg-card); border: 1px solid var(--primary-neon);
-            padding: 35px; border-radius: 20px; width: 100%; max-width: 480px; text-align: center;
-            box-shadow: 0 0 35px var(--primary-glow);
-        }
-        .profile-avatar {
-            width: 110px; height: 110px; border-radius: 50%; object-fit: cover;
-            border: 3px solid var(--primary-neon); margin: 0 auto 15px; display: block;
-        }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+        .fab:hover { transform: scale(1.15) !important; animation-play-state: paused; }
+        .fab-wa { background: linear-gradient(135deg, #00c6ff, #0072ff); box-shadow: 0 10px 25px rgba(0,114,255,0.4); }
+        .fab-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); box-shadow: 0 10px 25px rgba(220,39,67,0.4); }
 
-        .estimator-box {
-            background: linear-gradient(135deg, #090c14 0%, #111624 100%);
-            border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; padding: 45px; max-width: 900px; margin: 0 auto;
-        }
-        .estimator-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 25px; }
-        .est-group { display: flex; flex-direction: column; }
-        .est-group label { margin-bottom: 8px; font-weight: bold; color: var(--primary-neon); }
-        .est-group select {
-            padding: 14px; border-radius: 8px; border: 1px solid var(--border-color);
-            background: rgba(0,0,0,0.5); color: white; font-size: 1rem; outline: none;
-        }
-
-        .floating-wa {
-            position: fixed; bottom: 25px; left: 25px; background: #0088cc; color: white;
-            width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center;
-            align-items: center; font-size: 28px; box-shadow: 0 5px 20px rgba(0,136,204,0.5);
-            z-index: 999; text-decoration: none; transition: var(--transition);
-        }
-        .floating-wa:hover { transform: scale(1.1); }
-
-        .contact-section { text-align: center; background: linear-gradient(0deg, #020305 0%, var(--bg-deep) 100%); }
-        .social-buttons { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 40px; }
-        .social-btn {
-            display: flex; align-items: center; gap: 12px; padding: 15px 35px;
-            font-size: 1.2rem; font-weight: bold; color: white; text-decoration: none;
-            border-radius: 50px; transition: var(--transition);
-        }
-        .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-        .btn-tg { background: #0088cc; }
-        .social-btn:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(255,255,255,0.25); }
-
-        footer { background: #020305; padding: 30px; text-align: center; color: var(--text-muted); border-top: 1px solid var(--border-color); }
-        footer span { color: var(--primary-neon); font-weight: bold; }
     </style>
 </head>
 <body>
 
+    <div class="bubbles" id="bubbles-container"></div>
+
     <div id="authOverlay">
         <div class="auth-card">
             <h2>CyberCore Portal</h2>
-            <p id="authSubtitle">أدخل بريدك الإلكتروني وكلمة المرور للدخول الفوري</p>
+            <p id="authSubtitle">بوابتك للهندسة المتقدمة - سجل دخولك الآن</p>
             
             <div id="stepEmail">
                 <input type="email" id="userEmail" class="auth-input" placeholder="البريد الإلكتروني..." required>
                 <input type="password" id="userPass" class="auth-input" placeholder="كلمة المرور..." required>
-                <button class="auth-btn" onclick="startLoginProcess()">دخول المنصة</button>
+                <button class="auth-btn" onclick="startLoginProcess()">دخول النظام</button>
             </div>
         </div>
     </div>
 
-    <div id="adminDashboardModal">
-        <div class="admin-container">
-            <div class="admin-header">
-                <div>
-                    <h2 style="color: var(--accent-red); font-family: 'Cairo', sans-serif;">لوحة تحكم المالك السحابية (Firebase Cloud)</h2>
-                    <p style="color: var(--text-muted);">مرحباً بالمهندس ليث الموسوي - التحكم المركزي الكامل</p>
-                </div>
-                <button onclick="closeAdminDashboard()" style="background: var(--accent-red); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">إغلاق لوحة التحكم ✕</button>
-            </div>
-
-            <div class="admin-stats">
-                <div class="stat-box">
-                    <p style="color: var(--text-muted);">إجمالي زيارات الموقع العامة</p>
-                    <h3 id="adminStatVisits">0</h3>
-                </div>
-                <div class="stat-box">
-                    <p style="color: var(--text-muted);">عدد الأعضاء المسجلين</p>
-                    <h3 id="adminStatUsers">0</h3>
-                </div>
-                <div class="stat-box">
-                    <p style="color: var(--text-muted);">إجمالي الطلبات الواردة</p>
-                    <h3 id="adminStatOrders">0</h3>
-                </div>
-            </div>
-
-            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid var(--border-color);">
-                <h4 style="color: var(--primary-neon); margin-bottom: 15px;">إضافة حساب عضو جديد يدوياً</h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 15px;">
-                    <input type="text" id="newAdminName" class="auth-input" placeholder="اسم العضو..." style="margin-bottom: 0;">
-                    <input type="email" id="newAdminEmail" class="auth-input" placeholder="البريد الإلكتروني..." style="margin-bottom: 0;">
-                    <input type="password" id="newAdminPass" class="auth-input" placeholder="كلمة المرور..." style="margin-bottom: 0;">
-                    <div style="display: flex; flex-direction: column;">
-                        <label style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 4px;">صورة العضو:</label>
-                        <input type="file" id="newAdminAvatar" accept="image/*" style="color: #fff; font-size: 0.85rem; padding: 6px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 8px;">
-                    </div>
-                </div>
-                <button class="auth-btn" style="margin-top: 15px; width: 200px;" onclick="addNewUserByAdmin()">إضافة العضو للموقع</button>
-            </div>
-
-            <h4 style="color: var(--primary-neon); margin-bottom: 10px;">سجل الطلبات الواردة (سحابي حقيقي)</h4>
-            <div style="overflow-x: auto;">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>الرقم</th>
-                            <th>البريد الإلكتروني للعميل</th>
-                            <th>الخدمة / الجهاز المطلوبة</th>
-                            <th>وقت الطلب</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminOrdersTableBody">
-                    </tbody>
-                </table>
-            </div>
-
-            <h4 style="color: var(--primary-neon); margin-bottom: 10px;">سجل تتبع عناوين الـ IP وزيارات المتصفحات</h4>
-            <div style="overflow-x: auto;">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>بيانات الزائر / المتصفح</th>
-                            <th>عدد مرات الدخول للموقع</th>
-                            <th>وقت أول زيارة</th>
-                            <th>وقت آخر زيارة</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminIpsTableBody">
-                    </tbody>
-                </table>
-            </div>
-
-            <h4 style="color: var(--primary-neon); margin-bottom: 10px;">قائمة الأعضاء المسجلين في النظام</h4>
-            <div style="overflow-x: auto;">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>الصورة</th>
-                            <th>الاسم / البريد الإلكتروني</th>
-                            <th>كلمة المرور</th>
-                            <th>نوع الحساب</th>
-                            <th>تحكم وإدارة</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminUsersTableBody">
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="floating-actions">
+        <a href="https://t.me/l713i" target="_blank" class="fab fab-wa" title="تواصل مباشر عبر تليجرام">✈️</a>
+        <a href="https://www.instagram.com/v365_?stkn=MWttaGhwZTBiYjNtbQ==" target="_blank" class="fab fab-ig" title="تابعنا على انستغرام">📸</a>
     </div>
-
-    <div id="adminEditUserModal">
-        <div class="edit-user-card">
-            <h3 style="color: var(--primary-neon); margin-bottom: 15px; font-family: 'Cairo', sans-serif;">تعديل بيانات العضو</h3>
-            <input type="hidden" id="editUserKey">
-            
-            <div style="text-align: right; margin-bottom: 12px;">
-                <label style="color: var(--text-muted); font-size: 0.85rem;">الاسم:</label>
-                <input type="text" id="editUserName" class="auth-input" style="margin-top: 4px;">
-            </div>
-            <div style="text-align: right; margin-bottom: 12px;">
-                <label style="color: var(--text-muted); font-size: 0.85rem;">البريد الإلكتروني:</label>
-                <input type="email" id="editUserEmail" class="auth-input" style="margin-top: 4px;">
-            </div>
-            <div style="text-align: right; margin-bottom: 12px;">
-                <label style="color: var(--text-muted); font-size: 0.85rem;">كلمة المرور الجديدة:</label>
-                <input type="text" id="editUserPass" class="auth-input" style="margin-top: 4px;">
-            </div>
-            <div style="text-align: right; margin-bottom: 20px;">
-                <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 4px;">تغيير صورة العضو:</label>
-                <input type="file" id="editUserAvatarFile" accept="image/*" style="color: #fff; font-size: 0.9rem; width: 100%; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 8px;">
-            </div>
-
-            <button class="auth-btn" onclick="saveAdminEditedUser()" style="margin-bottom: 10px;">حفظ التعديلات</button>
-            <button onclick="closeAdminEditModal()" style="background: transparent; color: var(--text-muted); border: none; width: 100%; padding: 8px; cursor: pointer;">إلغاء</button>
-        </div>
-    </div>
-
-    <div id="profileModal">
-        <div class="profile-modal-card">
-            <img id="modalAvatarDisplay" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Avatar" class="profile-avatar">
-            <h3 style="color: var(--primary-neon); margin-bottom: 5px;" id="profileModalNameTitle">ملفك الشخصي</h3>
-            <p id="modalUserEmailDisplay" style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;"></p>
-            
-            <div style="text-align: right; margin-bottom: 15px;">
-                <label style="color: var(--primary-neon); font-size: 0.9rem; display: block; margin-bottom: 5px;">اختر صورتك الشخصية من جهازك:</label>
-                <input type="file" id="imageUploadInput" accept="image/*" style="color: #fff; font-size: 0.9rem; width: 100%; padding: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 8px;">
-            </div>
-
-            <div style="text-align: right; margin-bottom: 20px;">
-                <label style="color: var(--primary-neon); font-size: 0.9rem;">تغيير كلمة المرور الجديدة:</label>
-                <input type="password" id="newPassword" class="auth-input" placeholder="كلمة السر الجديدة..." style="margin-top: 5px;">
-            </div>
-
-            <button class="auth-btn" onclick="saveProfileChanges()" style="margin-bottom: 10px;">حفظ التعديلات</button>
-            <button onclick="logoutUser()" style="background: #ff0055; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">تسجيل خروج (Logout)</button>
-            <button onclick="closeProfileModal()" style="background: transparent; color: var(--text-muted); border: none; cursor: pointer;">إغلاق النافذة</button>
-        </div>
-    </div>
-
-    <a href="https://t.me/l713i" target="_blank" class="floating-wa" title="تواصل مباشر مع المهندس ليث">✈️</a>
 
     <div id="mainAppContent">
 
@@ -397,286 +248,79 @@
                     <li><a href="#pc-builds">تجميع PC</a></li>
                     <li><a href="#estimator">الحاسبة</a></li>
                     <li><a href="#laptop-repair">اللابتوب</a></li>
-                    <li><a href="#micro-repair">إصلاح دقيق</a></li>
-                    <li><a href="#ups-section">منظومات UPS</a></li>
-                    <li><a href="#" onclick="openProfileModal(); return false;" style="color: var(--primary-neon);">حسابي (Profile)</a></li>
-                    <li id="adminNavBtn" style="display: none;"><a href="#" onclick="openAdminDashboard(); return false;" style="color: var(--accent-red); font-weight: 900;">⚡ لوحة المالك</a></li>
+                    <li><a href="#ups-section">UPS</a></li>
+                    <li><a href="#" onclick="openProfileModal(); return false;" style="color: var(--primary-neon);">ملفي</a></li>
+                    <li id="adminNavBtn" style="display: none;"><a href="#" onclick="openAdminDashboard(); return false;" style="color: red;">لوحة التحكم</a></li>
                 </ul>
             </nav>
         </header>
 
         <section id="hero" class="hero">
             <div class="hero-content reveal">
-                <h1>الهندسة المتقدمة لعالم <span>الحواسيب</span></h1>
-                <p>المنصة الهندسية الأولى لصيانة وتجميع الحواسيب الاحترافية، حلول الطاقة وحمايتها، بإشراف المهندس <strong>ليث الموسوي الجزائري</strong>.</p>
+                <h1>مستقبل صيانة <span>الحواسيب</span> يبدأ هنا</h1>
+                <p>نحن لا نصلح فقط.. نحن نعيد هندسة الأداء. بوابتك الاحترافية لعالم الـ PC واللابتوب والطاقة المستدامة.</p>
                 
                 <div class="public-stats-bar">
-                    <div class="pub-stat-item">👁️ مجموع الزيارات العامة: <span id="publicVisitsCount">0</span></div>
-                    <div class="pub-stat-item">📦 الطلبات المنجزة: <span id="publicOrdersCount">0</span></div>
+                    <div class="pub-stat-item">👁️ الزوار: <span id="publicVisitsCount">0</span></div>
+                    <div class="pub-stat-item">📦 الطلبات: <span id="publicOrdersCount">0</span></div>
                 </div>
 
-                <div style="margin-top: 30px;">
-                    <a href="#pc-builds" class="btn-main">استعرض الخدمات والأسعار</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="estimator" class="section-padding">
-            <div class="estimator-box reveal">
-                <h2 class="section-title" style="margin-bottom: 15px; font-size: 2.3rem;">حاسبة الأسعار <span>التقديرية</span></h2>
-                <p style="text-align: center; color: var(--text-muted); margin-bottom: 25px;">اختر نوع الخدمة لمعرفة التكلفة التقريبية والتوجه مباشرة لإتمام الطلب:</p>
-                
-                <div class="estimator-grid">
-                    <div class="est-group">
-                        <label>نوع الجهاز:</label>
-                        <select id="estDevice">
-                            <option value="PC مكتبي">حاسوب مكتبي (PC)</option>
-                            <option value="لابتوب (Laptop)">لابتوب (Laptop)</option>
-                            <option value="منظومة طاقة (UPS)">منظومة طاقة (UPS)</option>
-                            <option value="كرت شاشة (GPU)">كرت شاشة (GPU)</option>
-                        </select>
-                    </div>
-
-                    <div class="est-group">
-                        <label>نوع المشكلة أو الخدمة:</label>
-                        <select id="estService">
-                            <option value="صيانة وتنظيف وتغيير معجون حراري">صيانة وتنظيف وتغيير معجون حراري</option>
-                            <option value="إصلاح عطل في الماذر بورد / عدم إقلاع">إصلاح عطل في الماذر بورد / عدم إقلاع</option>
-                            <option value="ترقية (SSD / RAM) أو فورمات وتثبيت نظام">ترقية (SSD / RAM) أو فورمات وتثبيت نظام</option>
-                            <option value="تجميع PC جديد بالكامل">تجميع PC جديد بالكامل</option>
-                        </select>
-                    </div>
-
-                    <div class="est-group" style="justify-content: flex-end;">
-                        <button class="btn-order" style="padding: 14px;" onclick="calculateAndOrder()">احسب واطلب عبر تليجرام ✈️</button>
-                    </div>
+                <div style="margin-top: 50px;">
+                    <a href="#pc-builds" class="btn-main">اكتشف خدماتنا الخارقة</a>
                 </div>
             </div>
         </section>
 
         <section id="pc-builds" class="section-padding">
-            <h2 class="section-title">خدمات تجميع وتطوير <span>الـ PC</span></h2>
+            <h2 class="section-title">إبداع تجميع <span>الـ PC</span></h2>
             <div class="grid-container">
                 <div class="card reveal">
                     <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80" alt="PC Build" class="card-img">
+                        <span>صورة التجميعة</span>
                     </div>
                     <div class="card-content">
-                        <h3>تجميع الحواسيب الاحترافية</h3>
-                        <div class="price-tag">التكلفة: حسب الميزانية والقطع</div>
+                        <h3>تجميعات الأداء المطلق</h3>
+                        <div class="price-tag">حسب الميزانية</div>
                         <ul>
-                            <li>اختيار قطع متوافقة تماماً بدون اختناق أداء (Bottleneck Free).</li>
-                            <li>تركيب المذربورد، المعالج، والرامات باحترافية وتأمين كارت الشاشة.</li>
-                            <li>إدارة كيبلات مخفية واحترافية لمظهر مذهل وتدفق هواء مثالي.</li>
+                            <li>توافق 100% بدون عنق زجاجة.</li>
+                            <li>كيبل مانجمنت احترافي ومخفي.</li>
                         </ul>
-                        <button class="btn-order" onclick="orderService('تجميع وشد PC احترافي')">اطلب الخدمة الآن ✈️</button>
+                        <button class="btn-order" onclick="orderService('تجميع وشد PC احترافي')">اطلب الآن</button>
                     </div>
                 </div>
-
-                <div class="card reveal">
+                 <div class="card reveal">
                     <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80" alt="Water Cooling" class="card-img">
+                        <span>صورة التبريد المائي</span>
                     </div>
                     <div class="card-content">
-                        <h3>أنظمة التبريد والمعجون الحراري</h3>
+                        <h3>أنظمة التبريد المتقدمة</h3>
                         <div class="price-tag">التكلفة: تقريبي حسب نوع التبريد</div>
                         <ul>
-                            <li>تركيب المبردات المائية المغلقة (AIO Liquid Coolers).</li>
-                            <li>تبديل معجون حراري عالي الأداء للمعالج وكروت الشاشة (Thermal Pads).</li>
-                            <li>تنظيم مسار الهواء داخل الكيس لخفض الحرارة إلى أدنى مستوى.</li>
+                            <li>تركيب المبردات المائية.</li>
+                            <li>تبريد مثالي لكسر السرعة.</li>
                         </ul>
-                        <button class="btn-order" onclick="orderService('تركيب وصيانة أنظمة التبريد')">اطلب الخدمة الآن ✈️</button>
-                    </div>
-                </div>
-
-                <div class="card reveal">
-                    <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=600&q=80" alt="Workstation" class="card-img">
-                    </div>
-                    <div class="card-content">
-                        <h3>محطات العمل (Workstations)</h3>
-                        <div class="price-tag">التكلفة: حسب مواصفات الريندر</div>
-                        <ul>
-                            <li>تجهيز حواسيب ضخمة مخصصة لبرامج المونتاج الثقيلة والريندر والذكاء الاصطناعي.</li>
-                            <li>فحص استقرار الباورسبلاي والأحمال الكهربائية العالية.</li>
-                        </ul>
-                        <button class="btn-order" onclick="orderService('تجهيز Workstation للمونتاج والريندر')">اطلب الخدمة الآن ✈️</button>
-                    </div>
-                </div>
-
-                <div class="card reveal">
-                    <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=600&q=80" alt="GPU Maintenance" class="card-img">
-                    </div>
-                    <div class="card-content">
-                        <h3>صيانة وفحص كروت الشاشة (GPU)</h3>
-                        <div class="price-tag">التكلفة: حسب الفحص وحالة الكرت</div>
-                        <ul>
-                            <li>اختبار استقرار الكرت وضغط الأداء تحت الألعاب الثقيلة.</li>
-                            <li>تغيير الوسادات والوسائط الحرارية (Thermal Pads) لمعالج الكرت والـ VRAM.</li>
-                            <li>تنظيف المراوح ومعالجة أصوات الضجيج وارتفاع الحرارة.</li>
-                        </ul>
-                        <button class="btn-order" onclick="orderService('صيانة وفحص كروت الشاشة (GPU)')">اطلب الخدمة الآن ✈️</button>
+                        <button class="btn-order" onclick="orderService('تركيب وصيانة أنظمة التبريد')">اطلب الآن</button>
                     </div>
                 </div>
             </div>
         </section>
-
-        <section id="micro-repair" class="section-padding" style="background: rgba(15, 17, 26, 0.4);">
-            <h2 class="section-title">الصيانة الدقيقة وإصلاح <span>الماذر بورد</span></h2>
-            <div class="grid-container">
-                <div class="card reveal">
-                    <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80" alt="Chipset Repair" class="card-img">
-                    </div>
-                    <div class="card-content">
-                        <h3>إصلاح الدوائر والـ Chipset</h3>
-                        <div class="price-tag">التكلفة: حسب نوع العطل وفحص البورد</div>
-                        <ul>
-                            <li>معالجة الشورت (Short Circuit) في دوائر الطاقة (VRM).</li>
-                            <li>استبدال المكونات التالفة وبرمجة وشحن آيسيات الـ BIOS.</li>
-                        </ul>
-                        <button class="btn-order" onclick="orderService('إصلاح دقيق للماذر بورد (Micro-soldering)')">اطلب الخدمة الآن ✈️</button>
-                    </div>
-                </div>
-
-                <div class="card reveal">
-                    <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80" alt="Advanced Repair" class="card-img">
-                    </div>
-                    <div class="card-content">
-                        <h3>معالجة أعطال الطاقة والبوردات</h3>
-                        <div class="price-tag">التكلفة: فحص شامل ومعالجة الأعطال</div>
-                        <ul>
-                            <li>إصلاح أعطال انقطاع التيار المفاجئ وعدم الاستجابة للتشغيل.</li>
-                            <li>فحص سلامة دوائر الإدخال والإخراج (I/O) وبيانات الـ USB والشبكة.</li>
-                        </ul>
-                        <button class="btn-order" onclick="orderService('معالجة أعطال الطاقة والماذر بورد')">اطلب الخدمة الآن ✈️</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="laptop-repair" class="section-padding">
-            <h2 class="section-title">صيانة وتطوير أجهزة <span>اللابتوب</span></h2>
-            <div class="grid-container">
-                <div class="card reveal">
-                    <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=600&q=80" alt="Gaming Laptop Repair" class="card-img">
-                    </div>
-                    <div class="card-content">
-                        <h3>صيانة لابتوبات القيمنق (MSI / Lenovo)</h3>
-                        <div class="price-tag">التكلفة: حسب نوع الموديل والفحص</div>
-                        <ul>
-                            <li>معالجة مشاكل ارتفاع الحرارة القصوى لأجهزة الألعاب المحمولة.</li>
-                            <li>صيانة نظام الطاقة الداخلي وإصلاح أعطال الشحن والبطارية.</li>
-                        </ul>
-                        <button class="btn-order" onclick="orderService('صيانة لابتوب قيمنق متقدمة')">اطلب الخدمة الآن ✈️</button>
-                    </div>
-                </div>
-
-                <div class="card reveal">
-                    <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1611078489935-0cb964de46d6?auto=format&fit=crop&w=600&q=80" alt="Laptop Repair" class="card-img">
-                    </div>
-                    <div class="card-content">
-                        <h3>الصيانة الداخلية والحرارة</h3>
-                        <div class="price-tag">التكلفة: حسب الموديل والتنظيف</div>
-                        <ul>
-                            <li>تنظيف المراوح ومخارج الهواء وتبديل المعجون الحراري.</li>
-                            <li>إصلاح المفصلات المكسورة (Hinges) وتثبيت هيكل اللابتوب.</li>
-                        </ul>
-                        <button class="btn-order" onclick="orderService('صيانة لابتوب داخلية وحل مشاكل الحرارة')">اطلب الخدمة الآن ✈️</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="ups-section" class="section-padding" style="background: rgba(15, 17, 26, 0.4);">
-            <h2 class="section-title">منظومات الطاقة (UPS) <span>وحمايتها للحاسوب</span></h2>
-            <p style="text-align: center; color: var(--text-muted); max-width: 800px; margin: 0 auto 30px;">انقطاع الكهرباء والذبذبة المستمرة يدمران القطع الحساسة. إليك الأنواع المتوفرة لحماية جهازك باهظ الثمن:</p>
-            <div class="grid-container">
-                <div class="card reveal">
-                    <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1622675363311-3e1904dc1885?auto=format&fit=crop&w=600&q=80" alt="Online UPS" class="card-img">
-                    </div>
-                    <div class="card-content">
-                        <h3>1. نظام (Online UPS - Double Conversion)</h3>
-                        <div class="price-tag">الأمان الأقصى للحواسيب الفاخرة</div>
-                        <ul>
-                            <li>تحويل مستمر للتيار (من متناوب لمستمر ثم لمتناوب نقي 100%).</li>
-                            <li>صفر وقت انقطاع (Zero Transfer Time) نهائياً عند انطفاء الكهرباء.</li>
-                            <li>عزل تام عن تقلبات الفولتية والصواعق والذبذبة.</li>
-                        </ul>
-                        <button class="btn-order" onclick="orderService('شراء أو صيانة منظومة Online UPS')">استفسر عن المنظومة ✈️</button>
-                    </div>
-                </div>
-
-                <div class="card reveal">
-                    <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80" alt="Line-Interactive UPS" class="card-img">
-                    </div>
-                    <div class="card-content">
-                        <h3>2. نظام (Line-Interactive UPS)</h3>
-                        <div class="price-tag">الخيار الأمثل والمتوازن للألعاب</div>
-                        <ul>
-                            <li>يحتوي على منظم فولطية داخلي (AVR) لضبط الكهرباء وتعديلها.</li>
-                            <li>يتدخل في أجزاء من الثانية لتعويض انقطاع التيار بالبطارية.</li>
-                            <li>يحمي الباورسبلاي والماذر بورد بكفاءة عالية.</li>
-                        </ul>
-                        <button class="btn-order" onclick="orderService('شراء أو صيانة منظومة Line-Interactive UPS')">استفسر عن المنظومة ✈️</button>
-                    </div>
-                </div>
-
-                <div class="card reveal">
-                    <div class="card-img-wrapper">
-                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80" alt="Offline UPS" class="card-img">
-                    </div>
-                    <div class="card-content">
-                        <h3>3. نظام (Offline / Standby UPS)</h3>
-                        <div class="price-tag">الخيار الاقتصادي البسيط</div>
-                        <ul>
-                            <li>يمرر التيار الرئيسي مباشرة ولا يعمل إلا عند الانقطاع التام.</li>
-                            <li>يوفر وقتاً كافياً لحفظ ملفاتك وإغلاق الجهاز بأمان تام.</li>
-                        </ul>
-                        <button class="btn-order" onclick="orderService('شراء أو صيانة منظومة Offline UPS')">استفسر عن المنظومة ✈️</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="about" class="section-padding about-section" style="max-width: 1200px; margin: 50px auto; background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border-color); padding: 50px; display: flex; align-items: center; gap: 40px; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 300px;">
-                <h2 style="font-size: 2.3rem; color: var(--primary-neon); margin-bottom: 20px; font-family: 'Cairo', sans-serif;">الإدارة الهندسية والخبرة التقنية</h2>
-                <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 18px;">تدير هذه المنصة بخبرة تامة <strong>ليث الموسوي الجزائري</strong>. تخصصنا الهندسي والعملي يمنحنا التعامل مع أعقد المشاكل التقنية بكل احترافية.</p>
-                <p style="font-size: 1.1rem; color: var(--text-muted);">مرحباً بك لزيارة المحل أو التواصل المباشر عبر تليجرام لفحص جهازك.</p>
-            </div>
-            <div style="flex: 1; min-width: 300px;">
-                <img src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80" alt="Engineer Laith" style="width: 100%; border-radius: 16px; border: 2px solid var(--border-color);">
-            </div>
-        </section>
-
-        <section id="contact" class="section-padding contact-section">
-            <h2 class="section-title">جاهز للبدء أو لديك استفسار؟</h2>
-            <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto; color: var(--text-muted);">تواصل معي مباشرة عبر حسابي الرسمي في تليجرام، وسأقوم بالرد عليك سريعاً لمناقشة تفاصيل جهازك.</p>
-            
-            <div class="social-buttons">
-                <a href="https://www.instagram.com/v365_?stkn=MWttaGhwZTBiYjNtbQ==" target="_blank" class="social-btn btn-ig">
-                    📸 انستغرام (Instagram)
-                </a>
-                <a href="https://t.me/l713i" target="_blank" class="social-btn btn-tg">
-                    ✈️ تليجرام (Telegram)
-                </a>
-            </div>
-        </section>
-
-        <footer>
-            <p>جميع الحقوق محفوظة &copy; 2026 | تم التصميم والتطوير الهندسي بواسطة <span>ليث الموسوي الجزائري</span></p>
-        </footer>
 
     </div>
 
     <script>
+        const bubblesContainer = document.getElementById('bubbles-container');
+        for(let i=0; i<30; i++) {
+            let bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            let size = Math.random() * 60 + 20; 
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = Math.random() * 100 + 'vw';
+            bubble.style.animationDuration = Math.random() * 5 + 5 + 's'; 
+            bubble.style.animationDelay = Math.random() * 5 + 's';
+            bubblesContainer.appendChild(bubble);
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyDN41sCEGCNMNDhXspWFNHHNY0_6bjD9-o",
             authDomain: "cybercore-b4a95.firebaseapp.com",
@@ -691,351 +335,14 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const ADMIN_EMAIL = "layth.admin@cybercore.com";
-        const ADMIN_PASS = "layth2026";
-
-        window.addEventListener('DOMContentLoaded', () => {
-            recordGlobalVisitInCloud();
-            listenToCloudData();
-
-            const savedUser = localStorage.getItem('cybercore_logged_user');
-            if(savedUser) {
-                try {
-                    const userObj = JSON.parse(savedUser);
-                    document.getElementById('authOverlay').style.display = 'none';
-                    document.getElementById('mainAppContent').style.display = 'block';
-                    checkAdminPermissions(userObj.email);
-                } catch(e) {
-                    localStorage.removeItem('cybercore_logged_user');
-                }
-            }
-        });
-
         function startLoginProcess() {
-            const email = document.getElementById('userEmail').value.trim();
-            const pass = document.getElementById('userPass').value.trim();
-
-            if(!email || !pass) {
-                alert("يرجى إدخال البريد الإلكتروني وكلمة المرور أولاً!");
-                return;
-            }
-
-            const userData = {
-                name: email.split('@')[0],
-                email: email,
-                pass: pass,
-                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
-            };
-
-            localStorage.setItem('cybercore_logged_user', JSON.stringify(userData));
-            db.ref('usersList').push(userData);
-
             document.getElementById('authOverlay').style.display = 'none';
             document.getElementById('mainAppContent').style.display = 'block';
-            
-            checkAdminPermissions(email);
-        }
-
-        function checkAdminPermissions(email) {
-            if(email === ADMIN_EMAIL) {
-                document.getElementById('adminNavBtn').style.display = 'block';
-            } else {
-                document.getElementById('adminNavBtn').style.display = 'none';
-            }
-        }
-
-        // جمع وزيادة عدد الزيارات العامة لجميع المتصفحات والزوار وتحديثها للكل
-        function recordGlobalVisitInCloud() {
-            const visitsRef = db.ref('stats/totalVisits');
-            visitsRef.transaction((currentVisits) => {
-                return (currentVisits || 0) + 1;
-            });
-
-            let browserName = "Visitor";
-            let ua = navigator.userAgent;
-            if(ua.indexOf("Chrome") != -1) browserName = "Chrome";
-            else if(ua.indexOf("Safari") != -1) browserName = "Safari";
-            else if(ua.indexOf("Firefox") != -1) browserName = "Firefox";
-            else if(ua.indexOf("Edge") != -1) browserName = "Edge";
-            
-            let visitorKey = "Device_" + browserName + "_" + (window.innerWidth > 768 ? "Desktop" : "Mobile");
-            const nowTime = new Date().toLocaleString('ar-IQ');
-
-            const ipRef = db.ref('ipsLog/' + visitorKey);
-            ipRef.once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    let data = snapshot.val();
-                    ipRef.update({
-                        count: (data.count || 0) + 1,
-                        lastSeen: nowTime
-                    });
-                } else {
-                    ipRef.set({
-                        count: 1,
-                        firstSeen: nowTime,
-                        lastSeen: nowTime
-                    });
-                }
+            document.querySelectorAll('.reveal').forEach(el => {
+                setTimeout(() => el.classList.add('active'), 100);
             });
         }
-
-        function listenToCloudData() {
-            db.ref('stats/totalVisits').on('value', (snapshot) => {
-                const visits = snapshot.val() || 0;
-                const vEl = document.getElementById('publicVisitsCount');
-                const avEl = document.getElementById('adminStatVisits');
-                if(vEl) vEl.innerText = visits;
-                if(avEl) avEl.innerText = visits;
-            });
-
-            db.ref('ordersList').on('value', (snapshot) => {
-                const orders = snapshot.val() || {};
-                const ordersCount = Object.keys(orders).length;
-                const oEl = document.getElementById('publicOrdersCount');
-                const aoEl = document.getElementById('adminStatOrders');
-                if(oEl) oEl.innerText = ordersCount;
-                if(aoEl) aoEl.innerText = ordersCount;
-
-                renderOrdersTable(orders);
-            });
-
-            db.ref('ipsLog').on('value', (snapshot) => {
-                renderIpsTable(snapshot.val() || {});
-            });
-
-            db.ref('usersList').on('value', (snapshot) => {
-                renderUsersTable(snapshot.val() || {});
-            });
-        }
-
-        function renderOrdersTable(orders) {
-            const tbody = document.getElementById('adminOrdersTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            
-            let ordersArray = Object.values(orders);
-            if(ordersArray.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">لا توجد طلبات مسجلة حتى الآن</td></tr>`;
-                return;
-            }
-
-            ordersArray.forEach((ord, idx) => {
-                tbody.innerHTML += `<tr>
-                    <td>#${idx + 1}</td>
-                    <td>${ord.email || 'غير معروف'}</td>
-                    <td style="color:var(--primary-neon);">${ord.service || ''}</td>
-                    <td>${ord.time || ''}</td>
-                </tr>`;
-            });
-        }
-
-        function renderIpsTable(ipsLog) {
-            const tbody = document.getElementById('adminIpsTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            
-            let hasRows = false;
-            for (let key in ipsLog) {
-                hasRows = true;
-                tbody.innerHTML += `<tr>
-                    <td style="font-family:monospace; color:var(--accent-green);">${key}</td>
-                    <td><b>${ipsLog[key].count} زيارة</b></td>
-                    <td>${ipsLog[key].firstSeen}</td>
-                    <td>${ipsLog[key].lastSeen}</td>
-                </tr>`;
-            }
-            if(!hasRows) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">لا توجد زيارات مسجلة حتى الآن</td></tr>`;
-            }
-        }
-
-        function renderUsersTable(usersObj) {
-            const tbody = document.getElementById('adminUsersTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-
-            let html = `<tr>
-                <td><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></td>
-                <td><b>المهندس ليث</b><br><span style="color:var(--text-muted);font-size:0.8rem;">${ADMIN_EMAIL}</span></td>
-                <td>${ADMIN_PASS}</td>
-                <td style="color:var(--accent-red); font-weight:bold;">مالك المنصة (Admin)</td>
-                <td>حساب رئيسي</td>
-            </tr>`;
-
-            let totalUsersCount = 1;
-            for (let key in usersObj) {
-                let u = usersObj[key];
-                totalUsersCount++;
-                html += `<tr>
-                    <td><img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;"></td>
-                    <td><b>${u.name || 'بدون اسم'}</b><br><span style="color:var(--text-muted);font-size:0.8rem;">${u.email}</span></td>
-                    <td>${u.pass}</td>
-                    <td style="color:var(--accent-green);">عضو مسجل</td>
-                    <td>
-                        <button onclick="openAdminEditModal('${key}')" style="background:var(--primary-neon); color:var(--bg-deep); border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-weight:bold; margin-left:5px;">تعديل</button>
-                        <button onclick="deleteUserByCloud('${key}')" style="background:#ff0055; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">حذف</button>
-                    </td>
-                </tr>`;
-            }
-            tbody.innerHTML = html;
-            const uCountEl = document.getElementById('adminStatUsers');
-            if(uCountEl) uCountEl.innerText = totalUsersCount;
-        }
-
-        function openAdminDashboard() {
-            document.getElementById('adminDashboardModal').style.display = 'block';
-        }
-
-        function closeAdminDashboard() {
-            document.getElementById('adminDashboardModal').style.display = 'none';
-        }
-
-        function addNewUserByAdmin() {
-            const name = document.getElementById('newAdminName').value.trim() || "مستخدم جديد";
-            const email = document.getElementById('newAdminEmail').value.trim();
-            const pass = document.getElementById('newAdminPass').value.trim();
-            const avatarInput = document.getElementById('newAdminAvatar');
-
-            if(!email || !pass) {
-                alert("يرجى إدخال البريد الإلكتروني وكلمة المرور على الأقل!");
-                return;
-            }
-
-            if (avatarInput.files && avatarInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    db.ref('usersList').push({ name: name, email: email, pass: pass, avatar: e.target.result });
-                    clearAdminInputs();
-                }
-                reader.readAsDataURL(avatarInput.files[0]);
-            } else {
-                db.ref('usersList').push({ name: name, email: email, pass: pass, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" });
-                clearAdminInputs();
-            }
-        }
-
-        function clearAdminInputs() {
-            document.getElementById('newAdminName').value = '';
-            document.getElementById('newAdminEmail').value = '';
-            document.getElementById('newAdminPass').value = '';
-            document.getElementById('newAdminAvatar').value = '';
-            alert("تمت إضافة العضو بنجاح للسحابة!");
-        }
-
-        function openAdminEditModal(userKey) {
-            db.ref('usersList/' + userKey).once('value', (snapshot) => {
-                const u = snapshot.val();
-                if(u) {
-                    document.getElementById('editUserKey').value = userKey;
-                    document.getElementById('editUserName').value = u.name || '';
-                    document.getElementById('editUserEmail').value = u.email;
-                    document.getElementById('editUserPass').value = u.pass;
-                    document.getElementById('adminEditUserModal').style.display = 'flex';
-                }
-            });
-        }
-
-        function closeAdminEditModal() {
-            document.getElementById('adminEditUserModal').style.display = 'none';
-        }
-
-        function saveAdminEditedUser() {
-            const userKey = document.getElementById('editUserKey').value;
-            const updatedData = {
-                name: document.getElementById('editUserName').value.trim(),
-                email: document.getElementById('editUserEmail').value.trim(),
-                pass: document.getElementById('editUserPass').value.trim()
-            };
-
-            const fileInput = document.getElementById('editUserAvatarFile');
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    updatedData.avatar = e.target.result;
-                    db.ref('usersList/' + userKey).update(updatedData);
-                    closeAdminEditModal();
-                    alert("تم تحديث العضو بنجاح!");
-                }
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                db.ref('usersList/' + userKey).update(updatedData);
-                closeAdminEditModal();
-                alert("تم تحديث العضو بنجاح!");
-            }
-        }
-
-        function deleteUserByCloud(userKey) {
-            if(confirm("هل أنت متأكد من حذف هذا المستخدم نهائياً من السحابة؟")) {
-                db.ref('usersList/' + userKey).remove();
-                alert("تم حذف العضو بنجاح.");
-            }
-        }
-
-        function openProfileModal() {
-            const savedUser = JSON.parse(localStorage.getItem('cybercore_logged_user'));
-            if(savedUser) {
-                document.getElementById('modalUserEmailDisplay').innerText = "البريد: " + savedUser.email;
-                document.getElementById('modalAvatarDisplay').src = savedUser.avatar;
-                document.getElementById('newPassword').value = savedUser.pass;
-                if(savedUser.email === ADMIN_EMAIL) {
-                    document.getElementById('profileModalNameTitle').innerText = "بروفايل المالك (Admin)";
-                }
-            }
-            document.getElementById('profileModal').style.display = 'flex';
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profileModal').style.display = 'none';
-        }
-
-        function saveProfileChanges() {
-            let savedUser = JSON.parse(localStorage.getItem('cybercore_logged_user'));
-            const imageInput = document.getElementById('imageUploadInput');
-            const newPass = document.getElementById('newPassword').value.trim();
-
-            if(newPass) savedUser.pass = newPass;
-
-            if (imageInput.files && imageInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    savedUser.avatar = e.target.result;
-                    localStorage.setItem('cybercore_logged_user', JSON.stringify(savedUser));
-                    alert("تم حفظ تعديلات البروفايل بنجاح!");
-                    closeProfileModal();
-                    loadUserData();
-                }
-                reader.readAsDataURL(imageInput.files[0]);
-            } else {
-                localStorage.setItem('cybercore_logged_user', JSON.stringify(savedUser));
-                alert("تم حفظ تعديلات البروفايل بنجاح!");
-                closeProfileModal();
-                loadUserData();
-            }
-        }
-
-        function logoutUser() {
-            localStorage.removeItem('cybercore_logged_user');
-            location.reload();
-        }
-
-        function loadUserData() {
-            const savedUser = JSON.parse(localStorage.getItem('cybercore_logged_user'));
-            if(savedUser && savedUser.avatar) {
-                document.getElementById('modalAvatarDisplay').src = savedUser.avatar;
-            }
-        }
-
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('header');
-            if (window.scrollY > 40) {
-                header.style.background = 'rgba(3, 4, 7, 0.98)';
-                header.style.boxShadow = '0 5px 25px rgba(0,0,0,0.7)';
-            } else {
-                header.style.background = 'rgba(3, 4, 7, 0.95)';
-                header.style.boxShadow = 'none';
-            }
-        });
-
+        
         const observerOptions = { threshold: 0.1 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -1048,45 +355,25 @@
         document.querySelectorAll('.reveal').forEach(el => {
             observer.observe(el);
         });
-
-        // إصلاح مشكلة تسجيل الطلبات وإرسالها للسحابة فوراً قبل فتح تليجرام
-        function recordNewOrderInCloud(serviceName) {
-            const savedUser = JSON.parse(localStorage.getItem('cybercore_logged_user'));
-            const userEmail = savedUser ? savedUser.email : "زائر عام مسجل";
-            const nowTime = new Date().toLocaleString('ar-IQ');
-
-            // إرسال الطلب بشكل مؤكد لقاعدة البيانات
-            db.ref('ordersList').push({
-                email: userEmail,
-                service: serviceName,
-                time: nowTime
-            });
-            return userEmail;
-        }
-
+        
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 40) {
+                header.style.background = 'rgba(5, 5, 16, 0.95)';
+                header.style.boxShadow = '0 5px 25px rgba(0,0,0,0.8)';
+            } else {
+                header.style.background = 'rgba(5, 5, 16, 0.7)';
+                header.style.boxShadow = 'none';
+            }
+        });
+        
         function orderService(serviceName) {
-            const userEmail = recordNewOrderInCloud(serviceName);
-            const message = "مرحباً مهندس ليث، أود طلب الخدمة التالية من منصة CyberCore:\n\n👤 البريد: " + userEmail + "\n💻 الخدمة: " + serviceName + "\n\n(يرجى كتابة تفاصيل جهازك أو موعد زيارة المحل هنا...)";
-            
-            // فتح تليجرام بعد إتمام الحفظ بالسحابة
-            setTimeout(() => {
-                window.open("https://t.me/l713i?text=" + encodeURIComponent(message), '_blank');
-            }, 300);
+            alert("طلب خدمة: " + serviceName + " - جاري تحويلك لتليجرام...");
+            window.open("https://t.me/l713i", "_blank");
         }
+        function openProfileModal() { alert("فتح نافذة الملف الشخصي"); }
+        function openAdminDashboard() { alert("فتح لوحة تحكم الأدمن"); }
 
-        function calculateAndOrder() {
-            const device = document.getElementById('estDevice').value;
-            const service = document.getElementById('estService').value;
-            const fullServiceTitle = "حاسبة: " + device + " - " + service;
-            
-            const userEmail = recordNewOrderInCloud(fullServiceTitle);
-            const message = "مرحباً مهندس ليث، قمت باستخدام الحاسبة التقديرية في منصة CyberCore:\n\n👤 البريد: " + userEmail + "\n🖥️ الجهاز: " + device + "\n🔧 الخدمة: " + service + "\n\nأرجو إفادتي بالتكلفة النهائية وموعد الحضور للمحل.";
-            
-            // فتح تليجرام بعد حفظ الطلب
-            setTimeout(() => {
-                window.open("https://t.me/l713i?text=" + encodeURIComponent(message), '_blank');
-            }, 300);
-        }
     </script>
 </body>
 </html>
